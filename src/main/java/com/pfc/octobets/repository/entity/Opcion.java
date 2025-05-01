@@ -8,11 +8,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "usuario")
+@Table(name = "opcion")
 @AllArgsConstructor
+@NoArgsConstructor
 public class Opcion {
 
     @Id

@@ -10,11 +10,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "usuario")
+@Table(name = "transaccion")
 @AllArgsConstructor
+@NoArgsConstructor
 public class Transaccion {
 
     @Id

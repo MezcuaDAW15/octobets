@@ -21,5 +21,5 @@ public class ApuestaDTO implements Serializable {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaCierre;
     private String estado;
-    private ApuestaDTO apuesta;
+    private UsuarioDTO creador;
 }
