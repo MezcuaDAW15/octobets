@@ -3,6 +3,8 @@ package com.pfc.octobets.model.dto;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.pfc.octobets.model.enums.EstadoApuesta;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +22,6 @@ public class ApuestaDTO implements Serializable {
     private String descripcion;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaCierre;
-    private String estado;
+    private EstadoApuesta estado;
     private UsuarioDTO creador;
 }
