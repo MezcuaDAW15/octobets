@@ -9,4 +9,8 @@ public interface ApuestaService {
 
     ApuestaDTO findById(Long id);
 
+    ApuestaDTO crearApuesta(ApuestaDTO apuestaDTO);
+
+    ApuestaDTO actualizarApuesta(Long id, ApuestaDTO apuestaDTO);
+
 }

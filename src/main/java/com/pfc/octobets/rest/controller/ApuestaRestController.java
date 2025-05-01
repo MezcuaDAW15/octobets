@@ -3,9 +3,13 @@ package com.pfc.octobets.rest.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,5 +42,23 @@ public class ApuestaRestController {
         ApuestaDTO apuesta = apuestaService.findById(id);
         log.info("Apuesta encontrada: {}", apuesta);
         return ResponseEntity.ok(apuesta);
+    }
+
+    @PostMapping
+    public ResponseEntity<ApuestaDTO> crearApuesta(@RequestBody ApuestaDTO apuestaDTO) {
+        log.info("Petición recibida: crear apuesta.");
+        ApuestaDTO nueva = apuestaService.crearApuesta(apuestaDTO);
+        log.info("Apuesta creada: {}", nueva);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApuestaDTO> actualizarApuesta(
+            @PathVariable Long id,
+            @RequestBody ApuestaDTO apuestaDTO) {
+        log.info("Petición recibida: actualizar apuesta id={}", id);
+        ApuestaDTO actualizada = apuestaService.actualizarApuesta(id, apuestaDTO);
+        log.info("Apuesta actualizada: {}", actualizada);
+        return ResponseEntity.ok(actualizada);
     }
 }
