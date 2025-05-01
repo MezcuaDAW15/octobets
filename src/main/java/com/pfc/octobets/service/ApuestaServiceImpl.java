@@ -28,4 +28,16 @@ public class ApuestaServiceImpl implements ApuestaService {
                 .map(apuestaMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ApuestaDTO findById(Long id) {
+        log.info("Búsqueda de apuesta con id={}", id);
+        return apuestaRepository.findById(id)
+                .map(apuestaMapper::toDTO)
+                .orElseThrow(() -> {
+                    String msg = "Apuesta no encontrada con id=" + id;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+    }
 }

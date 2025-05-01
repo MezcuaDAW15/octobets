@@ -6,4 +6,7 @@ import com.pfc.octobets.model.dto.ApuestaDTO;
 
 public interface ApuestaService {
     List<ApuestaDTO> findAll();
+
+    ApuestaDTO findById(Long id);
+
 }

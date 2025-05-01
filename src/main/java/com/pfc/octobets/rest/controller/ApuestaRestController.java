@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +30,13 @@ public class ApuestaRestController {
         List<ApuestaDTO> apuestas = apuestaService.findAll();
         log.info("Se retornan {} apuestas.", apuestas.size());
         return ResponseEntity.ok(apuestas);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApuestaDTO> getApuestaById(@PathVariable Long id) {
+        log.info("Petición recibida: obtener apuesta con id={}", id);
+        ApuestaDTO apuesta = apuestaService.findById(id);
+        log.info("Apuesta encontrada: {}", apuesta);
+        return ResponseEntity.ok(apuesta);
     }
 }
