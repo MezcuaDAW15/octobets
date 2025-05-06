@@ -18,5 +18,5 @@ public class TransaccionDTO implements Serializable {
     private Double cantidadDinero;
     private Double cantidadFichas;
     private LocalDateTime fecha;
-    private Integer idCartera;
+    private CarteraDTO carteraDTO;
 }
