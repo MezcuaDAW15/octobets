@@ -14,6 +14,8 @@ public interface ApuestaService {
 
     ApuestaDTO actualizarApuesta(Long id, ApuestaDTO apuestaDTO);
 
+    ApuestaDTO cerrarApuesta(Long id);
+
     ApuestaDTO resolverApuesta(Long id);
 
 }

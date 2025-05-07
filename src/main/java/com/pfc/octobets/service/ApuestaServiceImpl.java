@@ -98,6 +98,21 @@ public class ApuestaServiceImpl implements ApuestaService {
         return apuestaMapper.toDTO(guardada);
     }
 
+    @Override
+    public ApuestaDTO cerrarApuesta(Long id) {
+        log.info("Cerrando apuesta id={}", id);
+        Apuesta apuesta = apuestaRepository.findById(id)
+                .orElseThrow(() -> {
+                    String msg = "Imposible cerrar: apuesta no encontrada con id=" + id;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+
+        apuesta.setEstado(EstadoApuesta.CERRADA);
+        Apuesta guardada = apuestaRepository.save(apuesta);
+        log.info("Apuesta id={} cerrada.", id);
+        return apuestaMapper.toDTO(guardada);
+    }
 
     @Override
     public ApuestaDTO resolverApuesta(Long id) {

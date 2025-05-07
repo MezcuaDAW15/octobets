@@ -61,6 +61,15 @@ public class ApuestaRestController {
         log.info("Apuesta actualizada: {}", actualizada);
         return ResponseEntity.ok(actualizada);
     }
+
+    @PutMapping("/{id}/cerrar")
+    public ResponseEntity<ApuestaDTO> cerrarApuesta(@PathVariable Long id) {
+        log.info("Petición recibida: cerrar apuesta id={}", id);
+        ApuestaDTO cerrada = apuestaService.cerrarApuesta(id);
+        log.info("Apuesta cerrada: {}", cerrada);
+        return ResponseEntity.ok(cerrada);
+    }
+
     @PutMapping("/{id}/resolver")
     public ResponseEntity<ApuestaDTO> resolverApuesta(@PathVariable Long id) {
         log.info("Petición recibida: resolver apuesta id={}", id);
