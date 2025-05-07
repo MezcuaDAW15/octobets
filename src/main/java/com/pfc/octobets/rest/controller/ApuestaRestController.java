@@ -61,4 +61,12 @@ public class ApuestaRestController {
         log.info("Apuesta actualizada: {}", actualizada);
         return ResponseEntity.ok(actualizada);
     }
+    @PutMapping("/{id}/resolver")
+    public ResponseEntity<ApuestaDTO> resolverApuesta(@PathVariable Long id) {
+        log.info("Petición recibida: resolver apuesta id={}", id);
+
+        ApuestaDTO resuelta = apuestaService.resolverApuesta(id);
+        log.info("Apuesta resuelta: {}", resuelta);
+        return ResponseEntity.ok(resuelta);
+    }
 }

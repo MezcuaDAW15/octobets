@@ -17,5 +17,6 @@ public class OpcionDTO implements Serializable {
     private String descripcion;
     private Double totalApostado;
     private Double cuota;
+    private Boolean ganadora;
     private ApuestaDTO apuestaDTO;
 }

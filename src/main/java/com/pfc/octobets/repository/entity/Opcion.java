@@ -32,6 +32,9 @@ public class Opcion {
     @Column
     private Double cuota;
 
+    @Column
+    private Boolean ganadora;
+
     @ManyToOne
     @JoinColumn(name = "id_apuesta", nullable = false)
     private Apuesta apuesta;

@@ -11,7 +11,9 @@ import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.mapper.ApuestaMapper;
 import com.pfc.octobets.model.mapper.UsuarioMapper;
 import com.pfc.octobets.repository.dao.ApuestaRepository;
+import com.pfc.octobets.repository.dao.OpcionRepository;
 import com.pfc.octobets.repository.entity.Apuesta;
+import com.pfc.octobets.repository.entity.Opcion;
 import com.pfc.octobets.repository.entity.Usuario;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,10 @@ public class ApuestaServiceImpl implements ApuestaService {
     private ApuestaMapper apuestaMapper;
     @Autowired
     private UsuarioMapper usuarioMapper;
+    @Autowired
+    private OpcionRepository opcionRepository;
+    @Autowired
+    private TicketService ticketService;
 
     @Override
     public List<ApuestaDTO> findAll() {
@@ -90,6 +96,33 @@ public class ApuestaServiceImpl implements ApuestaService {
         Apuesta guardada = apuestaRepository.save(existente);
         log.info("Apuesta id={} actualizada.", id);
         return apuestaMapper.toDTO(guardada);
+    }
+
+
+    @Override
+    public ApuestaDTO resolverApuesta(Long id) {
+        log.info("Resolviendo apuesta id={}", id);
+        Apuesta apuesta = apuestaRepository.findById(id)
+                .orElseThrow(() -> {
+                    String msg = "Imposible resolver: apuesta no encontrada con id=" + id;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+
+        List<Opcion> opciones = opcionRepository.findAllByIdApuesta(id);
+        Opcion opcionGanadora = opciones.stream()
+                .filter(Opcion::getGanadora)
+                .findFirst()
+                .orElseThrow(() -> {
+                    String msg = "Imposible resolver: no hay opción ganadora para la apuesta con id=" + id;
+                    log.warn(msg);
+                    return new IllegalStateException(msg);
+                });
+        ticketService.pagarGanador(opcionGanadora.getId(), opcionGanadora.getCuota());
+        apuesta.setEstado(EstadoApuesta.RSUELTA);
+        apuestaRepository.save(apuesta);
+
+        return apuestaMapper.toDTO(apuesta);
     }
 
 }
