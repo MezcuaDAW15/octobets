@@ -3,6 +3,7 @@ package com.pfc.octobets.service;
 import java.util.List;
 
 import com.pfc.octobets.model.dto.ApuestaDTO;
+import com.pfc.octobets.model.dto.TicketDTO;
 
 public interface ApuestaService {
     List<ApuestaDTO> findAll();
@@ -12,5 +13,7 @@ public interface ApuestaService {
     ApuestaDTO crearApuesta(ApuestaDTO apuestaDTO);
 
     ApuestaDTO actualizarApuesta(Long id, ApuestaDTO apuestaDTO);
+
+    void realizarApuesta(TicketDTO ticketDTO, Long id, Long opcionId);
 
 }

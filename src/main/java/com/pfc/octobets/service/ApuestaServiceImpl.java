@@ -7,10 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pfc.octobets.model.dto.ApuestaDTO;
+import com.pfc.octobets.model.dto.TicketDTO;
 import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.mapper.ApuestaMapper;
+import com.pfc.octobets.model.mapper.TicketMapper;
 import com.pfc.octobets.repository.dao.ApuestaRepository;
+import com.pfc.octobets.repository.dao.OpcionRepository;
+import com.pfc.octobets.repository.dao.TicketRepository;
+import com.pfc.octobets.repository.dao.UsuarioRepository;
 import com.pfc.octobets.repository.entity.Apuesta;
+import com.pfc.octobets.repository.entity.Opcion;
+import com.pfc.octobets.repository.entity.Usuario;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +29,14 @@ public class ApuestaServiceImpl implements ApuestaService {
     private ApuestaRepository apuestaRepository;
     @Autowired
     private ApuestaMapper apuestaMapper;
+    @Autowired
+    private OpcionRepository opcionRepository;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
+    private TicketMapper ticketMapper;
 
     @Override
     public List<ApuestaDTO> findAll() {
@@ -88,4 +103,29 @@ public class ApuestaServiceImpl implements ApuestaService {
         return apuestaMapper.toDTO(guardada);
     }
 
+    @Override
+    public void realizarApuesta(TicketDTO ticketDTO, Long idApuesta, Long idOpcion) {
+
+        Apuesta apuesta = apuestaRepository.findById(idApuesta)
+                .orElseThrow(() -> new IllegalArgumentException("Apuesta no encontrada"));
+
+        if (apuesta.getEstado() != EstadoApuesta.ABIERTA) {
+            throw new IllegalArgumentException("La apuesta no está abierta");
+        }
+
+        Opcion opcion = opcionRepository.findById(idOpcion)
+                .orElseThrow(() -> new IllegalArgumentException("Opción no encontrada"));
+
+        if (!opcion.getApuesta().getId().equals(idApuesta)) {
+            throw new IllegalArgumentException("La opción no pertenece a la apuesta indicada");
+        }
+
+        usuarioRepository.findById(ticketDTO.getUsuario().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        opcion.setTotalApostado(opcion.getTotalApostado() + ticketDTO.getCantidadFichas());
+        opcionRepository.save(opcion);
+
+        ticketRepository.save(ticketMapper.toEntity(ticketDTO));
+    }
 }
