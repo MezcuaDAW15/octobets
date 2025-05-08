@@ -10,7 +10,7 @@ import com.pfc.octobets.repository.entity.Cartera;
 @Mapper(componentModel = "spring", uses = { UsuarioMapper.class })
 public interface CarteraMapper {
     @Mapping(source = "idUsuario", target = "id")
-    CarteraDTO toDto(Cartera cartera);
+    CarteraDTO toDTO(Cartera cartera);
 
     @InheritInverseConfiguration
     Cartera toEntity(CarteraDTO dto);
