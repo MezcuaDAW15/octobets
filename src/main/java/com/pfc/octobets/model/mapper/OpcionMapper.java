@@ -10,7 +10,7 @@ import com.pfc.octobets.repository.entity.Opcion;
 @Mapper(componentModel = "spring", uses = { ApuestaMapper.class })
 public interface OpcionMapper {
     @Mapping(source = "apuesta", target = "apuestaDTO")
-    OpcionDTO toDto(Opcion opcion);
+    OpcionDTO toDTO(Opcion opcion);
 
     @InheritInverseConfiguration
     Opcion toEntity(OpcionDTO dto);
