@@ -25,7 +25,7 @@ public class OpcionServiceImpl implements OpcionService {
     @Override
     public List<OpcionDTO> findAllByApuestaId(Long idApuesta) {
         log.info("Búsqueda de todas las opciones de la apuesta con id={}", idApuesta);
-        return opcionRepository.findAllByApuestaId(idApuesta).stream()
+        return opcionRepository.findAllByIdApuesta(idApuesta).stream()
                 .map(opcionMapper::toDTO)
                 .collect(Collectors.toList());
     }

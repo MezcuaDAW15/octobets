@@ -29,8 +29,6 @@ public class ApuestaServiceImpl implements ApuestaService {
     @Autowired
     private ApuestaMapper apuestaMapper;
     @Autowired
-    private UsuarioMapper usuarioMapper;
-    @Autowired
     private OpcionRepository opcionRepository;
     @Autowired
     private TicketService ticketService;
