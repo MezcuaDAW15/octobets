@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pfc.octobets.model.dto.ApuestaDTO;
+import com.pfc.octobets.model.dto.TicketDTO;
 import com.pfc.octobets.service.ApuestaService;
 
 import lombok.RequiredArgsConstructor;
@@ -78,4 +79,27 @@ public class ApuestaRestController {
         log.info("Apuesta resuelta: {}", resuelta);
         return ResponseEntity.ok(resuelta);
     }
+
+    @PostMapping("/{id}/opciones/{opcionId}")
+    public ResponseEntity<String> realizarApuesta(
+            @PathVariable Long id,
+            @PathVariable Long opcionId,
+            @RequestBody TicketDTO ticketDTO) {
+
+        log.info("Petición recibida: realizar apuesta en apuestaId={}, opcionId={}, usuarioId={}, cantidad={}",
+                id,
+                opcionId,
+                ticketDTO.getUsuario().getId(),
+                ticketDTO.getCantidadFichas());
+
+        try {
+            apuestaService.realizarApuesta(ticketDTO, id, opcionId);
+            return ResponseEntity.ok("Apuesta realizada con éxito");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error inesperado");
+        }
+    }
+
 }

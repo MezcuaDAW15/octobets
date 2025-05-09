@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pfc.octobets.model.dto.ApuestaDTO;
 import com.pfc.octobets.repository.entity.Apuesta;
+import com.pfc.octobets.model.dto.TicketDTO;
 
 public interface ApuestaService {
     List<ApuestaDTO> findAll();
@@ -17,5 +18,7 @@ public interface ApuestaService {
     ApuestaDTO cerrarApuesta(Long id);
 
     ApuestaDTO resolverApuesta(Long id);
+
+    void realizarApuesta(TicketDTO ticketDTO, Long id, Long opcionId);
 
 }
