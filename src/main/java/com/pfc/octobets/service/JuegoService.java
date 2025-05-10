@@ -6,4 +6,8 @@ import com.pfc.octobets.model.dto.JuegoResponseDTO;
 public interface JuegoService {
     JuegoResponseDTO jugarRuleta(JuegoRequestDTO dto);
 
+    JuegoResponseDTO jugarTragaperras3x5(JuegoRequestDTO request);
+
+    JuegoResponseDTO jugarBlackjack(JuegoRequestDTO request);
+
 }
