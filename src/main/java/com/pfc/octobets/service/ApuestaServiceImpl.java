@@ -9,10 +9,8 @@ import org.springframework.stereotype.Service;
 import com.pfc.octobets.model.dto.ApuestaDTO;
 import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.mapper.ApuestaMapper;
-import com.pfc.octobets.model.mapper.UsuarioMapper;
 import com.pfc.octobets.repository.dao.ApuestaRepository;
 import com.pfc.octobets.repository.entity.Apuesta;
-import com.pfc.octobets.repository.entity.Usuario;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,8 +22,6 @@ public class ApuestaServiceImpl implements ApuestaService {
     private ApuestaRepository apuestaRepository;
     @Autowired
     private ApuestaMapper apuestaMapper;
-    @Autowired
-    private UsuarioMapper usuarioMapper;
 
     @Override
     public List<ApuestaDTO> findAll() {
