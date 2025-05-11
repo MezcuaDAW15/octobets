@@ -4,4 +4,5 @@ public enum Juego {
     RULETA,
     TRAGAPERRAS,
     BLACKJACK,
+    PLINKO,
 }

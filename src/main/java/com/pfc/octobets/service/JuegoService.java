@@ -10,4 +10,6 @@ public interface JuegoService {
 
     JuegoResponseDTO jugarBlackjack(JuegoRequestDTO request);
 
+    JuegoResponseDTO jugarPlinko(JuegoRequestDTO request);
+
 }

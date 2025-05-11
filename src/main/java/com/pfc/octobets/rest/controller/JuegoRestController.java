@@ -90,6 +90,10 @@ public class JuegoRestController {
                 log.debug("Despachando a jugarBlackjack()");
                 resultado = juegoService.jugarBlackjack(request);
                 break;
+            case PLINKO:
+                log.debug("Despachando a jugarPlinko()");
+                resultado = juegoService.jugarPlinko(request);
+                break;
             default:
                 log.error("Juego implementado no encontrado en switch: {}", juegoEnum);
                 return ResponseEntity.badRequest().build();

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,12 @@ public class JuegoServiceImpl implements JuegoService {
     private static final List<String> VALORES_CARTA = List.of("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J",
             "Q", "K");
     private static final List<String> PALOS_CARTA = List.of("CORAZONES", "PICAS", "ROMBOS", "TREBOLES");
+    private static final int NIVELES_PLINKO = 8;
+    private static final int BOTES_PLINKO = NIVELES_PLINKO + 1;
+    private static final double[] MULTIPLICADORES_PLINKO = {
+            0.5, 0.8, 1.0, 1.5, 2.0, 1.5, 1.0, 0.8, 0.5
+    };
+
     @Autowired
     private RondaRepository rondaRepository;
 
@@ -309,6 +317,75 @@ public class JuegoServiceImpl implements JuegoService {
         }
 
         return new JuegoResponseDTO(victoria, (int) ganancia, infoVisual);
+    }
+
+    /**
+     * Ejecuta una partida de Plinko:
+     * - Genera un camino de NIVELES_PLINKO clavijas (true = derecha, false =
+     * izquierda).
+     * - Calcula la casilla final partiendo del centro.
+     * - Asigna una cuota según la casilla y calcula la ganancia.
+     * - Persiste la ronda y devuelve los datos necesarios para animar en el
+     * frontend.
+     */
+    @Override
+    public JuegoResponseDTO jugarPlinko(JuegoRequestDTO dto) {
+        long usuarioId = dto.getUsuarioDTO().getId();
+        double apuesta = dto.getCantidadApostada();
+        log.info("PLINKO: inicio de partida — usuarioId={}, apuesta={}", usuarioId, apuesta);
+
+        // 1) Generar camino aleatorio de la bola
+        boolean[] camino = new boolean[NIVELES_PLINKO];
+        for (int nivel = 0; nivel < NIVELES_PLINKO; nivel++) {
+            camino[nivel] = ThreadLocalRandom.current().nextBoolean();
+        }
+        log.debug("PLINKO: camino generado = {}", Arrays.toString(camino));
+
+        // 2) Calcular casilla final, partiendo siempre de la posición central
+        int casilla = NIVELES_PLINKO / 2;
+        for (boolean derecha : camino) {
+            casilla += derecha ? 1 : -1;
+            // Asegurar que casilla esté en [0, BOTES_PLINKO-1]
+            casilla = Math.max(0, Math.min(BOTES_PLINKO - 1, casilla));
+        }
+        log.debug("PLINKO: casilla final = {}", casilla);
+
+        // 3) Determinar cuota y ganancia
+        double cuota = MULTIPLICADORES_PLINKO[casilla];
+        double ganancia = apuesta * cuota;
+        boolean ganador = cuota > 0;
+        log.info("PLINKO: resultado — cuota={}, ganancia={}, ganador={}",
+                cuota, ganancia, ganador);
+
+        // Persistir ronda
+        Ronda ronda = new Ronda();
+        ronda.setUsuario(usuarioMapper.toEntity(dto.getUsuarioDTO()));
+        ronda.setJuego(juegoMapper.toEntity(dto.getJuegoDTO()));
+        ronda.setCantidadFichas(apuesta);
+        ronda.setCuota(cuota);
+        ronda.setEsGanadora(ganador);
+        ronda.setFechaJugada(LocalDateTime.now());
+        // rondaRepository.save(ronda);
+
+        // Cobrar
+        carteraService.cobrar(dto.getUsuarioDTO().getId(), dto.getCantidadApostada());
+
+        // Si es ganador, se paga la ganancia
+        if (ganador) {
+            carteraService.pagar(dto.getUsuarioDTO().getId(), ganancia);
+        }
+
+        // 4) Preparar infoVisual para el frontend
+        List<Boolean> listaCamino = IntStream.range(0, camino.length)
+                .mapToObj(i -> camino[i])
+                .collect(Collectors.toList());
+
+        Map<String, Object> infoVisual = new HashMap<>();
+        infoVisual.put("camino", listaCamino);
+        infoVisual.put("casillaFinal", casilla);
+        infoVisual.put("cuota", cuota);
+
+        return new JuegoResponseDTO(ganador, (int) ganancia, infoVisual);
     }
 
     // ================== Helpers privados ==================
