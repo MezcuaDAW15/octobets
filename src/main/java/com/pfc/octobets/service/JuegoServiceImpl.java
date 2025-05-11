@@ -217,22 +217,22 @@ public class JuegoServiceImpl implements JuegoService {
             manoCrupier.add(extraerCarta(mazoCompleto, manoJugador, manoCrupier));
             manoCrupier.add(null); // segunda oculta
             accionesPosibles.addAll(List.of("HIT", "STAND"));
-            log.debug("Initial deal — player={}, dealer=[{}, HIDDEN]",
+            log.debug("Reparto inicial — jugador={}, crupier=[{}, OCULTA]",
                     manoJugador, manoCrupier.get(0));
 
             // 2) Procesar acción HIT/STAND
         } else if (!gameOver) {
             String accion = ((String) estado.get("accion")).toUpperCase();
-            log.debug("Action '{}' for idUsuario={}", accion, idUsuario);
+            log.debug("Acción '{}' para idUsuario={}", accion, idUsuario);
 
             switch (accion) {
                 case "HIT" -> {
                     manoJugador.add(extraerCarta(mazoCompleto, manoJugador, manoCrupier));
                     int pVal = valorMano(manoJugador);
-                    log.debug("Player hits → hand={}, value={}", manoJugador, pVal);
+                    log.debug("El jugador pide carta → mano={}, valor={}", manoJugador, pVal);
                     if (pVal > 21) {
                         gameOver = true;
-                        log.info("Player busts with {}", pVal);
+                        log.info("El jugador se pasa con {}", pVal);
                     } else {
                         accionesPosibles.addAll(List.of("HIT", "STAND"));
                     }
@@ -244,7 +244,7 @@ public class JuegoServiceImpl implements JuegoService {
                     }
                     valorCrupier = jugarCrupier(mazoCompleto, manoJugador, manoCrupier);
                     gameOver = true;
-                    log.debug("Dealer final hand={} → value={}", manoCrupier, valorCrupier);
+                    log.debug("Mano final del crupier={} → valor={}", manoCrupier, valorCrupier);
                 }
                 default -> throw new IllegalArgumentException("Acción inválida: " + accion);
             }
@@ -257,7 +257,7 @@ public class JuegoServiceImpl implements JuegoService {
             // Asegurar revelado
             if (manoCrupier.get(1) == null) {
                 manoCrupier.set(1, extraerCarta(mazoCompleto, manoJugador, manoCrupier));
-                log.debug("Dealer forced reveal {}", manoCrupier.get(1));
+                log.debug("El crupier revela forzosamente {}", manoCrupier.get(1));
             }
             int pVal = valorMano(manoJugador);
             if (valorCrupier < 0) {
@@ -411,7 +411,7 @@ public class JuegoServiceImpl implements JuegoService {
             String card = extraerCarta(mazoCompleto, manoJugador, manoCrupier);
             manoCrupier.add(card);
             value = valorMano(manoCrupier);
-            log.debug("Dealer draws {} → value={}", card, value);
+            log.debug("El crupier roba {} → valor={}", card, value);
         }
         return value;
     }

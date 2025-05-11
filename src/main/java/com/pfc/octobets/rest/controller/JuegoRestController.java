@@ -59,7 +59,7 @@ public class JuegoRestController {
         // Validar saldo suficiente
         double saldo = carteraService.getSaldo(idUsuario);
         if (saldo < apuesta) {
-            log.warn("✗ Saldo insuficiente para idUsuario={}: saldo={} < apuesta={}",
+            log.warn("Saldo insuficiente para idUsuario={}: saldo={} < apuesta={}",
                     idUsuario, saldo, apuesta);
             return ResponseEntity.badRequest().body(
                     new JuegoResponseDTO(false, 0, Map.of("error", "Saldo insuficiente")));
@@ -70,7 +70,7 @@ public class JuegoRestController {
         try {
             juegoEnum = Juego.valueOf(tipoJuego.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            log.error("✗ Tipo de juego no soportado: '{}'", tipoJuego);
+            log.error("Tipo de juego no soportado: '{}'", tipoJuego);
             return ResponseEntity.badRequest().body(
                     new JuegoResponseDTO(false, 0, Map.of("error", "Juego no válido")));
         }
@@ -79,23 +79,23 @@ public class JuegoRestController {
         JuegoResponseDTO resultado;
         switch (juegoEnum) {
             case RULETA:
-                log.debug("→ Despachando a jugarRuleta()");
+                log.debug("Despachando a jugarRuleta()");
                 resultado = juegoService.jugarRuleta(request);
                 break;
             case TRAGAPERRAS:
-                log.debug("→ Despachando a jugarTragaperras3x5()");
+                log.debug("Despachando a jugarTragaperras3x5()");
                 resultado = juegoService.jugarTragaperras3x5(request);
                 break;
             case BLACKJACK:
-                log.debug("→ Despachando a jugarBlackjack()");
+                log.debug("Despachando a jugarBlackjack()");
                 resultado = juegoService.jugarBlackjack(request);
                 break;
             default:
-                log.error("✗ Juego implementado no encontrado en switch: {}", juegoEnum);
+                log.error("Juego implementado no encontrado en switch: {}", juegoEnum);
                 return ResponseEntity.badRequest().build();
         }
 
-        log.info("✔ [{}] Finalizada: resultado={}, ganancia={}",
+        log.info("[{}] Finalizada: resultado={}, ganancia={}",
                 tipoJuego, resultado.isResultado(), resultado.getFichasGanadas());
 
         return ResponseEntity.ok(resultado);
