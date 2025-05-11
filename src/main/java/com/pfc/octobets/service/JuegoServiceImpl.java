@@ -55,6 +55,9 @@ public class JuegoServiceImpl implements JuegoService {
     @Autowired
     private JuegoMapper juegoMapper;
 
+    @Autowired
+    private CarteraService carteraService;
+
     /**
      * Ejecuta una partida de ruleta.
      *
@@ -83,6 +86,14 @@ public class JuegoServiceImpl implements JuegoService {
         ronda.setEsGanadora(ganador);
         ronda.setFechaJugada(LocalDateTime.now());
         rondaRepository.save(ronda);
+
+        // Cobrar
+        carteraService.cobrar(dto.getUsuarioDTO().getId(), dto.getCantidadApostada());
+
+        // Si es ganador, se paga la ganancia
+        if (ganador) {
+            carteraService.pagar(dto.getUsuarioDTO().getId(), ganancia);
+        }
 
         // Preparar datos de respuesta
         Map<String, Object> infoVisual = new HashMap<>(2);
@@ -132,6 +143,7 @@ public class JuegoServiceImpl implements JuegoService {
 
         // 5. Calcular cuota y tipo de victoria
         double cuota = calcularCuota(countH, countD, patronEnV);
+        boolean ganador = (cuota > 0);
         String tipo = determinarTipoVictoria(countH, countD, patronEnV);
         double ganancia = apuesta * cuota;
 
@@ -141,9 +153,17 @@ public class JuegoServiceImpl implements JuegoService {
         ronda.setJuego(juegoMapper.toEntity(dto.getJuegoDTO()));
         ronda.setCantidadFichas(dto.getCantidadApostada());
         ronda.setCuota(cuota);
-        ronda.setEsGanadora(cuota > 0);
+        ronda.setEsGanadora(ganador);
         ronda.setFechaJugada(LocalDateTime.now());
         // rondaRepository.save(ronda);
+
+        // Cobrar
+        carteraService.cobrar(dto.getUsuarioDTO().getId(), dto.getCantidadApostada());
+
+        // Si es ganador, se paga la ganancia
+        if (ganador) {
+            carteraService.pagar(dto.getUsuarioDTO().getId(), ganancia);
+        }
 
         // Preparar respuesta
         Map<String, Object> infoVisual = new HashMap<>(3);
@@ -265,6 +285,15 @@ public class JuegoServiceImpl implements JuegoService {
             ronda.setEsGanadora(victoria);
             ronda.setFechaJugada(LocalDateTime.now());
             rondaRepository.save(ronda);
+
+            // Cobrar
+            carteraService.cobrar(dto.getUsuarioDTO().getId(), dto.getCantidadApostada());
+
+            // Si es ganador, se paga la ganancia
+            if (victoria) {
+                carteraService.pagar(dto.getUsuarioDTO().getId(), ganancia);
+            }
+
         }
 
         // 4) Responder al front
