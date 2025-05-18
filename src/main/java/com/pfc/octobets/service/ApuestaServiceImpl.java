@@ -140,7 +140,7 @@ public class ApuestaServiceImpl implements ApuestaService {
                     return new IllegalStateException(msg);
                 });
         ticketService.pagarGanador(opcionGanadora.getId(), opcionGanadora.getCuota());
-        apuesta.setEstado(EstadoApuesta.RSUELTA);
+        apuesta.setEstado(EstadoApuesta.RESUELTA);
         apuestaRepository.save(apuesta);
 
         return apuestaMapper.toDTO(apuesta);

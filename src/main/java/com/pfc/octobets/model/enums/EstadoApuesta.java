@@ -4,5 +4,5 @@ public enum EstadoApuesta {
     ABIERTA,
     CERRADA,
     CANCELADA,
-    RSUELTA,
+    RESUELTA,
 }
