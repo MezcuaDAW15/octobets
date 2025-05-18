@@ -18,5 +18,4 @@ public class OpcionDTO implements Serializable {
     private Double totalApostado;
     private Double cuota;
     private Boolean ganadora;
-    private ApuestaDTO apuestaDTO;
 }

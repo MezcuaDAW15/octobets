@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import com.pfc.octobets.model.dto.ApuestaDTO;
 import com.pfc.octobets.repository.entity.Apuesta;
 
-@Mapper(componentModel = "spring", uses = { UsuarioMapper.class })
+@Mapper(componentModel = "spring", uses = { UsuarioMapper.class, OpcionMapper.class })
 public interface ApuestaMapper {
     ApuestaDTO toDTO(Apuesta entity);
 

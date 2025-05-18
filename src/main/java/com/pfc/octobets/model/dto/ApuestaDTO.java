@@ -2,6 +2,7 @@ package com.pfc.octobets.model.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.enums.TipoApuesta;
@@ -25,4 +26,5 @@ public class ApuestaDTO implements Serializable {
     private LocalDateTime fechaCierre;
     private EstadoApuesta estado;
     private TipoApuesta tipo;
+    List<OpcionDTO> opciones;
 }
