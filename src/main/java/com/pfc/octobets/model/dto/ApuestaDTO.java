@@ -25,5 +25,4 @@ public class ApuestaDTO implements Serializable {
     private LocalDateTime fechaCierre;
     private EstadoApuesta estado;
     private TipoApuesta tipo;
-    private UsuarioDTO creador;
 }
