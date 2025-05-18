@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.pfc.octobets.model.enums.EstadoApuesta;
+import com.pfc.octobets.model.enums.TipoApuesta;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,5 +24,6 @@ public class ApuestaDTO implements Serializable {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaCierre;
     private EstadoApuesta estado;
+    private TipoApuesta tipo;
     private UsuarioDTO creador;
 }

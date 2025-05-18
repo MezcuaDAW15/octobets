@@ -3,6 +3,7 @@ package com.pfc.octobets.repository.entity;
 import java.time.LocalDateTime;
 
 import com.pfc.octobets.model.enums.EstadoApuesta;
+import com.pfc.octobets.model.enums.TipoApuesta;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,6 +45,10 @@ public class Apuesta {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoApuesta estado;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoApuesta tipo;
 
     @ManyToOne
     @JoinColumn(name = "id_creador", nullable = false)
