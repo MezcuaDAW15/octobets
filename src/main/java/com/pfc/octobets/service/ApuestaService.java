@@ -3,7 +3,6 @@ package com.pfc.octobets.service;
 import java.util.List;
 
 import com.pfc.octobets.model.dto.ApuestaDTO;
-import com.pfc.octobets.repository.entity.Apuesta;
 import com.pfc.octobets.model.dto.TicketDTO;
 
 public interface ApuestaService {
