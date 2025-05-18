@@ -10,7 +10,7 @@ import com.pfc.octobets.repository.entity.Ticket;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
-    @Query("SELECT t FROM Ticket t WHERE t.idOpcion = idOpcion")
+    @Query("SELECT t FROM Ticket t WHERE t.opcion.id = :idOpcion")
     List<Ticket> findByOpcionId(Long idOpcion);
 
 }

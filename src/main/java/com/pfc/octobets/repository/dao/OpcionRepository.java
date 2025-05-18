@@ -11,7 +11,7 @@ import com.pfc.octobets.repository.entity.Opcion;
 @Repository
 public interface OpcionRepository extends JpaRepository<Opcion, Long> {
 
-    @Query("SELECT o FROM Opcion o WHERE o.idApuesta = idApuesta")
+    @Query("SELECT o FROM Opcion o WHERE o.apuesta.id = :idApuesta")
     List<Opcion> findAllByIdApuesta(Long idApuesta);
 
 }
