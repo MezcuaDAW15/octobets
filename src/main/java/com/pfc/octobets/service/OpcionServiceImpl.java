@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.pfc.octobets.model.dto.OpcionDTO;
 import com.pfc.octobets.model.mapper.OpcionMapper;
 import com.pfc.octobets.repository.dao.OpcionRepository;
+import com.pfc.octobets.repository.dao.TicketRepository;
 import com.pfc.octobets.repository.entity.Opcion;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,9 @@ public class OpcionServiceImpl implements OpcionService {
 
     @Autowired
     private OpcionMapper opcionMapper;
+
+    @Autowired
+    private TicketRepository ticketRepository;
 
     @Override
     public List<OpcionDTO> findAllByApuestaId(Long idApuesta) {
@@ -71,6 +75,10 @@ public class OpcionServiceImpl implements OpcionService {
         for (Opcion opcion : opciones) {
             double cuota = totalApostado / opcion.getTotalApostado();
             opcion.setCuota(cuota);
+            ticketRepository.findByOpcionId(opcion.getId()).forEach(ticket -> {
+                ticket.setCuota(cuota);
+                this.ticketRepository.save(ticket);
+            });
             opcionRepository.save(opcion);
         }
     }
