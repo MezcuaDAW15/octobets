@@ -26,4 +26,20 @@ public class CarteraServiceImpl implements CarteraService {
                 });
     }
 
+    @Override
+    public void cobrar(Long id, Double cantidadApostada) {
+        log.info("Cobro de {} a la cartera con id={}", cantidadApostada, id);
+        carteraRepository.findById(id)
+                .ifPresentOrElse(cartera -> {
+                    double nuevoSaldo = cartera.getSaldoFichas() - cantidadApostada;
+                    cartera.setSaldoFichas(nuevoSaldo);
+                    carteraRepository.save(cartera);
+                    log.info("Nuevo saldo de la cartera con id={} es {}", id, nuevoSaldo);
+                }, () -> {
+                    String msg = "Cartera no encontrada para el usuario con id=" + id;
+                    log.warn(msg);
+                    throw new ResourceNotFoundException(msg);
+                });
+    }
+
 }
