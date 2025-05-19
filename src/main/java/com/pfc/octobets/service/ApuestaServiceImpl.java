@@ -42,7 +42,7 @@ public class ApuestaServiceImpl implements ApuestaService {
     @Override
     public List<ApuestaDTO> findAll() {
         log.info("Búsqueda de todas las apuestas en el repositorio.");
-        return apuestaRepository.findAll().stream()
+        return apuestaRepository.findAllAbiertas().stream()
                 .map(apuestaMapper::toDTO)
                 .collect(Collectors.toList());
     }
