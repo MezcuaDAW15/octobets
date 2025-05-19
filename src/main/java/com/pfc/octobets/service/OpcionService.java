@@ -10,4 +10,8 @@ public interface OpcionService {
 
     OpcionDTO findById(Long idApuesta, Long idOpcion);
 
+    void incrementarTotalApostado(Long id, double fichas);
+
+    void recalcularCuota(Long id);
+
 }

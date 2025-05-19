@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.pfc.octobets.model.dto.OpcionDTO;
 import com.pfc.octobets.model.mapper.OpcionMapper;
 import com.pfc.octobets.repository.dao.OpcionRepository;
+import com.pfc.octobets.repository.entity.Opcion;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,37 @@ public class OpcionServiceImpl implements OpcionService {
                     log.warn(msg);
                     return new ResourceNotFoundException(msg);
                 });
+    }
+
+    @Override
+    public void incrementarTotalApostado(Long opcionId, double cantidad) {
+
+        Opcion opcion = opcionRepository.findById(opcionId)
+                .orElseThrow(() -> {
+                    String msg = "Opción no encontrada con id=" + opcionId;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+        opcion.setTotalApostado(opcion.getTotalApostado() + cantidad);
+        opcionRepository.save(opcion);
+    }
+
+    @Override
+    public void recalcularCuota(Long idApuesta) {
+
+        List<Opcion> opciones = opcionRepository.findAllByIdApuesta(idApuesta);
+        double totalApostado = opciones.stream()
+                .mapToDouble(Opcion::getTotalApostado)
+                .sum();
+        if (totalApostado == 0) {
+            log.warn("No se puede recalcular la cuota de la apuesta con id={} porque no hay apuestas", idApuesta);
+            return;
+        }
+        for (Opcion opcion : opciones) {
+            double cuota = totalApostado / opcion.getTotalApostado();
+            opcion.setCuota(cuota);
+            opcionRepository.save(opcion);
+        }
     }
 
 }
