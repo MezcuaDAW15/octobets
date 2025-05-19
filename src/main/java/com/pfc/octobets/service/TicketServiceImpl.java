@@ -78,4 +78,12 @@ public class TicketServiceImpl implements TicketService {
         return ticketMapper.toDTO(ticket);
     }
 
+    @Override
+    public List<TicketDTO> getTicketsByIdUsuario(Long idUsuario) {
+        log.info("Búsqueda de tickets para el usuario con id={}", idUsuario);
+        return ticketRepository.findByUsuarioId(idUsuario).stream()
+                .map(ticketMapper::toDTO)
+                .toList();
+    }
+
 }

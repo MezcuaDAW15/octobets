@@ -1,6 +1,10 @@
 package com.pfc.octobets.rest.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +29,12 @@ public class TicketRestController {
     public TicketDTO crearTicket(@RequestBody TicketDTO ticketDTO) {
         log.info("Petición recibida: crear ticket.");
         return ticketService.crearTicket(ticketDTO);
+    }
+
+    @GetMapping("/usuarios/{idUsuario}")
+    public List<TicketDTO> getTicketsById(@PathVariable Long idUsuario) {
+        log.info("Petición recibida: obtener ticket por id.");
+        return ticketService.getTicketsByIdUsuario(idUsuario);
     }
 
 }
