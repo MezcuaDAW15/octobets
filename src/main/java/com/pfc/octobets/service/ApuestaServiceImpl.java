@@ -117,6 +117,8 @@ public class ApuestaServiceImpl implements ApuestaService {
                 });
 
         apuesta.setEstado(EstadoApuesta.CERRADA);
+        apuesta.setFechaCierre(java.time.LocalDateTime.now());
+        opcionService.recalcularCuota(id);
         Apuesta guardada = apuestaRepository.save(apuesta);
         log.info("Apuesta id={} cerrada.", id);
         return apuestaMapper.toDTO(guardada);

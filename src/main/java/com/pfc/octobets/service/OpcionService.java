@@ -13,7 +13,7 @@ public interface OpcionService {
 
     void incrementarTotalApostado(Long id, double fichas);
 
-    void recalcularCuota(Long id);
+    void recalcularCuota(Long idApuesta);
 
     Opcion setOpcionGanadora(Long idOpcionGanadora);
 
