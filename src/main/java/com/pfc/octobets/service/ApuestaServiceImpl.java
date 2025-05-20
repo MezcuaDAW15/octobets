@@ -62,14 +62,17 @@ public class ApuestaServiceImpl implements ApuestaService {
     }
 
     @Override
-    public ApuestaDTO crearApuesta(ApuestaDTO apuestaDTO) {
-        log.info("Creando nueva apuesta: {}", apuestaDTO);
-        apuestaDTO.setEstado(EstadoApuesta.ABIERTA);
-        Apuesta entidad = apuestaMapper.toEntity(apuestaDTO);
-
-        Apuesta guardada = apuestaRepository.save(entidad);
-        log.info("Apuesta creada con id={}", guardada);
-
+    public ApuestaDTO crearApuesta(ApuestaDTO apuestaDTO, Long idUsuario) {
+        log.info("Creando apuesta con datos {}", apuestaDTO);
+        Apuesta apuesta = apuestaMapper.toEntity(apuestaDTO);
+        apuesta.setCreador(usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> {
+                    String msg = "Usuario no encontrado con id=" + idUsuario;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                }));
+        Apuesta guardada = apuestaRepository.save(apuesta);
+        log.info("Apuesta creada con id={}", guardada.getId());
         return apuestaMapper.toDTO(guardada);
 
     }

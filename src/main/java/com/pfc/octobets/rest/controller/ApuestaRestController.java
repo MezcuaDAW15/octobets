@@ -57,8 +57,8 @@ public class ApuestaRestController {
 
     @PostMapping
     public ResponseEntity<ApuestaDTO> crearApuesta(@RequestBody ApuestaDTO apuestaDTO) {
-        log.info("Petición recibida: crear apuesta.");
-        ApuestaDTO nueva = apuestaService.crearApuesta(apuestaDTO);
+        log.info("Petición recibida: crear apuesta. + {}", apuestaDTO);
+        ApuestaDTO nueva = apuestaService.crearApuesta(apuestaDTO, 1L);
         log.info("Apuesta creada: {}", nueva);
         return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
     }
