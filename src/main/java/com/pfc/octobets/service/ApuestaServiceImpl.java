@@ -199,4 +199,12 @@ public class ApuestaServiceImpl implements ApuestaService {
 
         ticketRepository.save(ticketMapper.toEntity(ticketDTO));
     }
+
+    @Override
+    public List<ApuestaDTO> findByUsuario(Long idUsuario) {
+        log.info("Búsqueda de apuestas por usuario id={}", idUsuario);
+        return apuestaRepository.findByUsuario(idUsuario).stream()
+                .map(apuestaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

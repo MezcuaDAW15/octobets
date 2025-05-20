@@ -22,4 +22,6 @@ public interface ApuestaService {
 
     ApuestaDTO cancelarApuesta(Long id, String motivo);
 
+    List<ApuestaDTO> findByUsuario(Long idUsuario);
+
 }

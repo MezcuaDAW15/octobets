@@ -19,4 +19,8 @@ public interface ApuestaRepository extends JpaRepository<Apuesta, Long> {
 
     @EntityGraph(attributePaths = "opciones")
     Optional<Apuesta> findById(Long id);
+
+    @EntityGraph(attributePaths = "opciones")
+    @Query("SELECT a FROM Apuesta a WHERE a.creador.id = ?1")
+    List<Apuesta> findByUsuario(Long idUsuario);
 }
