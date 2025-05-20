@@ -12,6 +12,7 @@ import com.pfc.octobets.repository.dao.CarteraRepository;
 import com.pfc.octobets.repository.dao.OpcionRepository;
 import com.pfc.octobets.repository.dao.TicketRepository;
 import com.pfc.octobets.repository.entity.Cartera;
+import com.pfc.octobets.repository.entity.Opcion;
 import com.pfc.octobets.repository.entity.Ticket;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +79,22 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findByUsuarioId(idUsuario).stream()
                 .map(ticketMapper::toDTO)
                 .toList();
+    }
+
+    @Override
+    public void devolverTickets(Long idApuesta) {
+        log.info("Devolviendo tickets de la apuesta con id={}", idApuesta);
+        List<Opcion> opciones = opcionRepository.findAllByIdApuesta(idApuesta);
+        for (Opcion opcion : opciones) {
+            List<Ticket> tickets = ticketRepository.findByOpcionId(opcion.getId());
+            for (Ticket ticket : tickets) {
+                Cartera cartera = carteraRepository.findById(ticket.getUsuario().getId()).orElseThrow();
+                cartera.setSaldoFichas(cartera.getSaldoFichas() + ticket.getCantidadFichas());
+                carteraRepository.save(cartera);
+                log.info("Se ha devuelto el ticket con id={} al usuario con id={}", ticket.getId(),
+                        ticket.getUsuario().getId());
+            }
+        }
     }
 
 }

@@ -125,6 +125,26 @@ public class ApuestaServiceImpl implements ApuestaService {
     }
 
     @Override
+    public ApuestaDTO cancelarApuesta(Long id, String motivo) {
+        log.info("Cancelando apuesta id={} por motivo: {}", id, motivo);
+        Apuesta apuesta = apuestaRepository.findById(id)
+                .orElseThrow(() -> {
+                    String msg = "Imposible cancelar: apuesta no encontrada con id=" + id;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+
+        apuesta.setEstado(EstadoApuesta.CANCELADA);
+        String descripcion = apuesta.getDescripcion() + " Cancelado: " + motivo;
+        apuesta.setDescripcion(descripcion);
+        apuesta.setFechaCierre(java.time.LocalDateTime.now());
+        Apuesta guardada = apuestaRepository.save(apuesta);
+        ticketService.devolverTickets(guardada.getId());
+        log.info("Apuesta id={} cancelada.", id);
+        return apuestaMapper.toDTO(guardada);
+    }
+
+    @Override
     public ApuestaDTO resolverApuesta(Long id, Long idOpcionGanadora) {
         log.info("Resolviendo apuesta id={} con opción ganadora id={}", id, idOpcionGanadora);
         Apuesta apuesta = apuestaRepository.findById(id)

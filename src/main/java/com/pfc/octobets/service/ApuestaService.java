@@ -20,4 +20,6 @@ public interface ApuestaService {
 
     void realizarApuesta(TicketDTO ticketDTO, Long id, Long opcionId);
 
+    ApuestaDTO cancelarApuesta(Long id, String motivo);
+
 }

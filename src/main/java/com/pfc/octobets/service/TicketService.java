@@ -12,4 +12,6 @@ public interface TicketService {
 
     List<TicketDTO> getTicketsByIdUsuario(Long idUsuario);
 
+    void devolverTickets(Long idApuesta);
+
 }

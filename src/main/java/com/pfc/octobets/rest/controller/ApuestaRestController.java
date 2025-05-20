@@ -71,6 +71,14 @@ public class ApuestaRestController {
         return ResponseEntity.ok(cerrada);
     }
 
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<ApuestaDTO> cancelarApuesta(@PathVariable Long id, @RequestBody String motivo) {
+        log.info("Petición recibida: cancelar apuesta id={}", id);
+        ApuestaDTO cancelada = apuestaService.cancelarApuesta(id, motivo);
+        log.info("Apuesta cancelada: {}", cancelada);
+        return ResponseEntity.ok(cancelada);
+    }
+
     @PutMapping("/{id}/resolver/{idOpcionGanadora}")
     public ResponseEntity<ApuestaDTO> resolverApuesta(@PathVariable Long id,
             @PathVariable Long idOpcionGanadora) {
