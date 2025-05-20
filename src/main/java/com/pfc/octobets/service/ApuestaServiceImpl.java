@@ -31,6 +31,8 @@ public class ApuestaServiceImpl implements ApuestaService {
     @Autowired
     private OpcionRepository opcionRepository;
     @Autowired
+    private OpcionService opcionService;
+    @Autowired
     private TicketService ticketService;
     @Autowired
     private TicketRepository ticketRepository;
@@ -121,29 +123,34 @@ public class ApuestaServiceImpl implements ApuestaService {
     }
 
     @Override
-    public ApuestaDTO resolverApuesta(Long id) {
-        log.info("Resolviendo apuesta id={}", id);
+    public ApuestaDTO resolverApuesta(Long id, Long idOpcionGanadora) {
+        log.info("Resolviendo apuesta id={} con opción ganadora id={}", id, idOpcionGanadora);
         Apuesta apuesta = apuestaRepository.findById(id)
                 .orElseThrow(() -> {
                     String msg = "Imposible resolver: apuesta no encontrada con id=" + id;
-                    log.warn(msg);
+                    log.error(msg);
                     return new ResourceNotFoundException(msg);
                 });
-
-        List<Opcion> opciones = opcionRepository.findAllByIdApuesta(id);
-        Opcion opcionGanadora = opciones.stream()
-                .filter(Opcion::getGanadora)
-                .findFirst()
+        if (apuesta.getEstado() != EstadoApuesta.CERRADA) {
+            throw new IllegalArgumentException("La apuesta no está cerrada");
+        }
+        Opcion opcionGanadora = opcionRepository.findById(idOpcionGanadora)
                 .orElseThrow(() -> {
-                    String msg = "Imposible resolver: no hay opción ganadora para la apuesta con id=" + id;
-                    log.warn(msg);
-                    return new IllegalStateException(msg);
+                    String msg = "Opción ganadora no encontrada con id=" + idOpcionGanadora;
+                    log.error(msg);
+                    return new ResourceNotFoundException(msg);
                 });
-        ticketService.pagarGanador(opcionGanadora.getId(), opcionGanadora.getCuota());
-        apuesta.setEstado(EstadoApuesta.RESUELTA);
-        apuestaRepository.save(apuesta);
+        if (!opcionGanadora.getApuesta().getId().equals(id)) {
+            String msg = "La opción ganadora con id=" + idOpcionGanadora + " no pertenece a la apuesta con id=" + id;
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
 
-        return apuestaMapper.toDTO(apuesta);
+        opcionGanadora = opcionService.setOpcionGanadora(idOpcionGanadora);
+        ticketService.pagarGanador(opcionGanadora.getId());
+        apuesta.setEstado(EstadoApuesta.RESUELTA);
+        return apuestaMapper.toDTO(apuestaRepository.save(apuesta));
+
     }
 
     public void realizarApuesta(TicketDTO ticketDTO, Long idApuesta, Long idOpcion) {

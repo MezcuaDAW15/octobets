@@ -83,4 +83,17 @@ public class OpcionServiceImpl implements OpcionService {
         }
     }
 
+    @Override
+    public Opcion setOpcionGanadora(Long idOpcionGanadora) {
+        log.info("Marcando opción ganadora con id={}", idOpcionGanadora);
+        Opcion opcion = opcionRepository.findById(idOpcionGanadora)
+                .orElseThrow(() -> {
+                    String msg = "Opción no encontrada con id=" + idOpcionGanadora;
+                    log.warn(msg);
+                    return new ResourceNotFoundException(msg);
+                });
+        opcion.setGanadora(true);
+        return opcionRepository.save(opcion);
+    }
+
 }

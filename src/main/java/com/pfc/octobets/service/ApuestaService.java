@@ -16,7 +16,7 @@ public interface ApuestaService {
 
     ApuestaDTO cerrarApuesta(Long id);
 
-    ApuestaDTO resolverApuesta(Long id);
+    ApuestaDTO resolverApuesta(Long id, Long idOpcionGanadora);
 
     void realizarApuesta(TicketDTO ticketDTO, Long id, Long opcionId);
 

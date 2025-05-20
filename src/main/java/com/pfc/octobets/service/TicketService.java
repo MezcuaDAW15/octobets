@@ -6,7 +6,7 @@ import com.pfc.octobets.model.dto.TicketDTO;
 
 public interface TicketService {
 
-    void pagarGanador(Long id, Double cuota);
+    void pagarGanador(Long id);
 
     TicketDTO crearTicket(TicketDTO ticketDTO);
 

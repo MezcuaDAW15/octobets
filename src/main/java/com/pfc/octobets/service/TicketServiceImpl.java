@@ -34,19 +34,17 @@ public class TicketServiceImpl implements TicketService {
     private OpcionRepository opcionRepository;
 
     @Override
-    public void pagarGanador(Long idOpcion, Double cuota) {
+    public void pagarGanador(Long idOpcion) {
         log.info("Pago de ganador para la opción con id={}", idOpcion);
-        List<Ticket> tickets = ticketRepository.findByOpcionId(idOpcion);
-        tickets.forEach(ticket -> {
-            Double cantidad = ticket.getCantidadFichas() * cuota;
-            Long idUsuario = ticket.getUsuario().getId();
-            Double saldoActual = carteraRepository.findById(idUsuario).get().getSaldoFichas();
-            Double nuevoSaldo = saldoActual + cantidad;
-            Cartera cartera = carteraRepository.findById(idUsuario).get();
-            cartera.setSaldoFichas(nuevoSaldo);
+        List<Ticket> ticketsGanadores = ticketRepository.findByOpcionId(idOpcion);
+        for (Ticket ticket : ticketsGanadores) {
+            Cartera cartera = carteraRepository.findById(ticket.getUsuario().getId()).orElseThrow();
+            double cantidadGanada = ticket.getCantidadFichas() * ticket.getOpcion().getCuota();
+            cartera.setSaldoFichas(cartera.getSaldoFichas() + cantidadGanada);
             carteraRepository.save(cartera);
-            log.info("Se ha pagado {} a la cartera del usuario con id={}", cantidad, idUsuario);
-        });
+            log.info("Se ha pagado al usuario con id={} la cantidad de {} por el ticket con id={}",
+                    ticket.getUsuario().getId(), cantidadGanada, ticket.getId());
+        }
     }
 
     @Override
