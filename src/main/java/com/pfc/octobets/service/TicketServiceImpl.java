@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TicketServiceImpl implements TicketService {
 
-    private final OpcionRepository opcionRepository;
-
     @Autowired
     private CarteraRepository carteraRepository;
     @Autowired
@@ -32,10 +30,8 @@ public class TicketServiceImpl implements TicketService {
     private OpcionService opcionService;
     @Autowired
     private CarteraService carteraService;
-
-    TicketServiceImpl(OpcionRepository opcionRepository) {
-        this.opcionRepository = opcionRepository;
-    }
+    @Autowired
+    private OpcionRepository opcionRepository;
 
     @Override
     public void pagarGanador(Long idOpcion, Double cuota) {
