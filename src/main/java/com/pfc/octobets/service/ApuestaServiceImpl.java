@@ -1,5 +1,6 @@
 package com.pfc.octobets.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import com.pfc.octobets.model.dto.ApuestaDTO;
 import com.pfc.octobets.model.dto.TicketDTO;
 import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.mapper.ApuestaMapper;
+import com.pfc.octobets.model.mapper.OpcionMapper;
 import com.pfc.octobets.model.mapper.TicketMapper;
 import com.pfc.octobets.repository.dao.ApuestaRepository;
 import com.pfc.octobets.repository.dao.OpcionRepository;
@@ -40,6 +42,8 @@ public class ApuestaServiceImpl implements ApuestaService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private TicketMapper ticketMapper;
+    @Autowired
+    private OpcionMapper opcionMapper;
 
     @Override
     public List<ApuestaDTO> findAll() {
@@ -71,7 +75,16 @@ public class ApuestaServiceImpl implements ApuestaService {
                     log.warn(msg);
                     return new ResourceNotFoundException(msg);
                 }));
+        List<Opcion> opciones = apuestaDTO.getOpciones().stream()
+                .map(opcionMapper::toEntity)
+                .collect(Collectors.toList());
+        apuestaDTO.setOpciones(new ArrayList<>());
         Apuesta guardada = apuestaRepository.save(apuesta);
+        for (Opcion opcion : opciones) {
+            opcion.setApuesta(guardada);
+            guardada.getOpciones().add(opcion);
+        }
+
         log.info("Apuesta creada con id={}", guardada.getId());
         return apuestaMapper.toDTO(guardada);
 
