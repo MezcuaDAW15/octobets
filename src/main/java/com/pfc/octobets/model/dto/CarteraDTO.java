@@ -14,6 +14,5 @@ import lombok.NoArgsConstructor;
 public class CarteraDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
-    private UsuarioDTO usuario;
     private Double saldoFichas;
 }
