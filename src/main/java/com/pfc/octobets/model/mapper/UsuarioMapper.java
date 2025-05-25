@@ -11,5 +11,6 @@ public interface UsuarioMapper {
     UsuarioDTO toDTO(Usuario entity);
 
     @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "cartera", ignore = true)
     Usuario toEntity(UsuarioDTO dto);
 }

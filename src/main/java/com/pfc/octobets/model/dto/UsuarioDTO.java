@@ -15,5 +15,8 @@ public class UsuarioDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String nombre;
+    private String apellidos;
+    private String username;
     private String email;
+    private String avatar;
 }

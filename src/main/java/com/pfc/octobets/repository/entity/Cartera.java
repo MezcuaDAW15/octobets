@@ -10,12 +10,14 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "cartera")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "usuario")
 public class Cartera {
 
     @Id
@@ -29,4 +31,5 @@ public class Cartera {
 
     @Column(name = "saldo_fichas", nullable = false)
     private Double saldoFichas;
+
 }

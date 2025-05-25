@@ -13,6 +13,7 @@ public interface TicketMapper {
     @Mapping(source = "opcion.apuesta.descripcion", target = "apuestaDescripcion")
     @Mapping(source = "opcion.apuesta.tipo", target = "apuestaTipo")
     @Mapping(source = "opcion.apuesta.estado", target = "apuestaEstado")
+    @Mapping(source = "usuario", target = "usuario")
     TicketDTO toDTO(Ticket entity);
 
     @InheritInverseConfiguration
