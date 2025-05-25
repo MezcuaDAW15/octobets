@@ -27,4 +27,5 @@ public class ApuestaDTO implements Serializable {
     private EstadoApuesta estado;
     private TipoApuesta tipo;
     List<OpcionDTO> opciones;
+    private Long idCreador;
 }
