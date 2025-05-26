@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pfc.octobets.model.dto.CarteraDTO;
@@ -23,8 +23,8 @@ public class CarteraRestController {
     @Autowired
     private CarteraService carteraService;
 
-    @GetMapping(":idUsuario")
-    public ResponseEntity<CarteraDTO> getCarteraByUsuario(@RequestParam Long idUsuario) {
+    @GetMapping("/{idUsuario}")
+    public ResponseEntity<CarteraDTO> getCarteraByUsuario(@PathVariable Long idUsuario) {
         log.info("Petición recibida: obtener cartera por usuario id={}", idUsuario);
         CarteraDTO cartera = carteraService.findByUsuario(idUsuario);
         if (cartera != null) {
