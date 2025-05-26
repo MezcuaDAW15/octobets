@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,6 +23,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Transaccion {
 
+    public enum Tipo {
+        DEPOSITO, RETIRO
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,6 +39,13 @@ public class Transaccion {
 
     @Column(nullable = false)
     private LocalDateTime fecha;
+
+    @Column(name = "tipo", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Tipo tipo;
+
+    @Column(name = "stripe_id")
+    private String stripeId;
 
     @ManyToOne
     @JoinColumn(name = "id_cartera", nullable = false)
