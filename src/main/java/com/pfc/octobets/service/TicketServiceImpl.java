@@ -2,10 +2,13 @@ package com.pfc.octobets.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.TicketDTO;
 import com.pfc.octobets.model.mapper.TicketMapper;
 import com.pfc.octobets.repository.dao.CarteraRepository;
@@ -58,7 +61,10 @@ public class TicketServiceImpl implements TicketService {
         double saldo = carteraService.getSaldo(idUsuario);
         if (saldo < fichas) {
             log.error("El usuario con id={} no tiene saldo suficiente para crear el ticket", idUsuario);
-            throw new IllegalArgumentException("No tienes saldo suficiente");
+            throw new ApiException(
+                    ErrorCode.STAKE_LIMIT_REACHED,
+                    "No tienes saldo suficiente",
+                    Map.of("userId", idUsuario, "saldo", saldo, "cantidad", fichas));
         }
 
         Ticket ticket = ticketMapper.toEntity(dto);

@@ -1,11 +1,13 @@
 package com.pfc.octobets.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.UsuarioDTO;
 import com.pfc.octobets.model.mapper.UsuarioMapper;
 import com.pfc.octobets.repository.dao.CarteraRepository;
@@ -35,7 +37,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO, String password) {
         log.info("Creando usuario: {}", usuarioDTO);
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()) != null) {
-            throw new IllegalArgumentException("El email ya está registrado");
+            throw new ApiException(
+                    ErrorCode.USER_ALREADY_EXISTS,
+                    "El email ya está registrado",
+                    Map.of("email", usuarioDTO.getEmail()));
         }
         Usuario usuarioNuevo = usuarioMapper.toEntity(usuarioDTO);
         usuarioNuevo.setPasswordHash(passwordEncoder.encode(password));
@@ -53,8 +58,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioDTO updateProfile(Long idUsuario, UsuarioDTO dto) {
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "Usuario no encontrado",
+                        Map.of("id", idUsuario)));
 
         // copia sólo campos editables
         usuario.setNombre(dto.getNombre());
@@ -71,12 +78,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void changePassword(Long idUsuario, String oldPass, String newPass) {
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "Usuario no encontrado",
+                        Map.of("id", idUsuario)));
 
         if (!passwordEncoder.matches(oldPass, usuario.getPasswordHash())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "La contraseña actual no coincide");
+            throw new ApiException(
+                    ErrorCode.INVALID_CREDENTIALS,
+                    "La contraseña actual no coincide",
+                    Map.of("userId", idUsuario));
         }
 
         usuario.setPasswordHash(passwordEncoder.encode(newPass));
@@ -87,8 +98,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioDTO findById(Long id) {
         return usuarioRepository.findById(id)
                 .map(usuarioMapper::toDTO)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "Usuario no encontrado",
+                        Map.of("id", id)));
     }
 
 }

@@ -12,6 +12,9 @@ import com.pfc.octobets.repository.dao.OpcionRepository;
 import com.pfc.octobets.repository.dao.TicketRepository;
 import com.pfc.octobets.repository.entity.Opcion;
 
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -41,22 +44,22 @@ public class OpcionServiceImpl implements OpcionService {
         return opcionRepository.findById(idOpcion)
                 .filter(opcion -> opcion.getApuesta().getId().equals(idApuesta))
                 .map(opcionMapper::toDTO)
-                .orElseThrow(() -> {
-                    String msg = "Opción no encontrada con id=" + idOpcion + " de la apuesta con id=" + idApuesta;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                    ErrorCode.BET_NOT_FOUND,
+                    "Opción no encontrada",
+                    Map.of("opcionId", idOpcion, "apuestaId", idApuesta)
+                ));
     }
 
     @Override
     public void incrementarTotalApostado(Long opcionId, double cantidad) {
 
         Opcion opcion = opcionRepository.findById(opcionId)
-                .orElseThrow(() -> {
-                    String msg = "Opción no encontrada con id=" + opcionId;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                    ErrorCode.BET_NOT_FOUND,
+                    "Opción no encontrada",
+                    Map.of("id", opcionId)
+                ));
         opcion.setTotalApostado(opcion.getTotalApostado() + cantidad);
         opcionRepository.save(opcion);
     }
@@ -104,11 +107,11 @@ public class OpcionServiceImpl implements OpcionService {
     public Opcion setOpcionGanadora(Long idOpcionGanadora) {
         log.info("Marcando opción ganadora con id={}", idOpcionGanadora);
         Opcion opcion = opcionRepository.findById(idOpcionGanadora)
-                .orElseThrow(() -> {
-                    String msg = "Opción no encontrada con id=" + idOpcionGanadora;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                    ErrorCode.BET_NOT_FOUND,
+                    "Opción no encontrada",
+                    Map.of("id", idOpcionGanadora)
+                ));
         opcion.setGanadora(true);
         return opcionRepository.save(opcion);
     }

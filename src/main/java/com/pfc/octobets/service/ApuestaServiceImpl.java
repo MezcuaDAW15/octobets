@@ -2,11 +2,14 @@ package com.pfc.octobets.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.ApuestaDTO;
 import com.pfc.octobets.model.dto.TicketDTO;
 import com.pfc.octobets.model.enums.EstadoApuesta;
@@ -58,11 +61,10 @@ public class ApuestaServiceImpl implements ApuestaService {
         log.info("Búsqueda de apuesta con id={}", id);
         return apuestaRepository.findById(id)
                 .map(apuestaMapper::toDTO)
-                .orElseThrow(() -> {
-                    String msg = "Apuesta no encontrada con id=" + id;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Apuesta no encontrada",
+                        Map.of("id", id)));
     }
 
     @Override
@@ -70,11 +72,11 @@ public class ApuestaServiceImpl implements ApuestaService {
         log.info("Creando apuesta con datos {}", apuestaDTO);
         Apuesta apuesta = apuestaMapper.toEntity(apuestaDTO);
         apuesta.setCreador(usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> {
-                    String msg = "Usuario no encontrado con id=" + idUsuario;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                }));
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "Usuario no encontrado",
+                        Map.of("id", idUsuario))));
+
         List<Opcion> opciones = apuestaDTO.getOpciones().stream()
                 .map(opcionMapper::toEntity)
                 .collect(Collectors.toList());
@@ -95,11 +97,10 @@ public class ApuestaServiceImpl implements ApuestaService {
         log.info("Actualizando apuesta id={} con datos {}", id, apuestaDTO);
 
         Apuesta existente = apuestaRepository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = "Imposible actualizar: apuesta no encontrada con id=" + id;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Apuesta no encontrada",
+                        Map.of("id", id)));
 
         if (apuestaDTO.getTitulo() != null) {
             existente.setTitulo(apuestaDTO.getTitulo());
@@ -126,11 +127,10 @@ public class ApuestaServiceImpl implements ApuestaService {
     public ApuestaDTO cerrarApuesta(Long id) {
         log.info("Cerrando apuesta id={}", id);
         Apuesta apuesta = apuestaRepository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = "Imposible cerrar: apuesta no encontrada con id=" + id;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Apuesta no encontrada",
+                        Map.of("id", id)));
 
         apuesta.setEstado(EstadoApuesta.CERRADA);
         apuesta.setFechaCierre(java.time.LocalDateTime.now());
@@ -144,11 +144,10 @@ public class ApuestaServiceImpl implements ApuestaService {
     public ApuestaDTO cancelarApuesta(Long id, String motivo) {
         log.info("Cancelando apuesta id={} por motivo: {}", id, motivo);
         Apuesta apuesta = apuestaRepository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = "Imposible cancelar: apuesta no encontrada con id=" + id;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Imposible cancelar: apuesta no encontrada",
+                        Map.of("id", id)));
 
         apuesta.setEstado(EstadoApuesta.CANCELADA);
         String descripcion = apuesta.getDescripcion() + " Cancelado: " + motivo;
@@ -164,24 +163,30 @@ public class ApuestaServiceImpl implements ApuestaService {
     public ApuestaDTO resolverApuesta(Long id, Long idOpcionGanadora) {
         log.info("Resolviendo apuesta id={} con opción ganadora id={}", id, idOpcionGanadora);
         Apuesta apuesta = apuestaRepository.findById(id)
-                .orElseThrow(() -> {
-                    String msg = "Imposible resolver: apuesta no encontrada con id=" + id;
-                    log.error(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Imposible resolver: apuesta no encontrada",
+                        Map.of("id", id)));
         if (apuesta.getEstado() != EstadoApuesta.CERRADA) {
-            throw new IllegalArgumentException("La apuesta no está cerrada");
+            throw new ApiException(
+                    ErrorCode.BET_ALREADY_PLACED,
+                    "La apuesta no está cerrada",
+                    Map.of("id", id)
+            );
         }
         Opcion opcionGanadora = opcionRepository.findById(idOpcionGanadora)
-                .orElseThrow(() -> {
-                    String msg = "Opción ganadora no encontrada con id=" + idOpcionGanadora;
-                    log.error(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Opción ganadora no encontrada",
+                        Map.of("id", idOpcionGanadora)));
         if (!opcionGanadora.getApuesta().getId().equals(id)) {
             String msg = "La opción ganadora con id=" + idOpcionGanadora + " no pertenece a la apuesta con id=" + id;
             log.error(msg);
-            throw new IllegalArgumentException(msg);
+            throw new ApiException(
+                    ErrorCode.BET_NOT_FOUND,
+                    "La opción no pertenece a la apuesta",
+                    Map.of("apuestaId", id, "opcionId", idOpcionGanadora)
+            );
         }
 
         opcionGanadora = opcionService.setOpcionGanadora(idOpcionGanadora);
@@ -194,10 +199,17 @@ public class ApuestaServiceImpl implements ApuestaService {
     public void realizarApuesta(TicketDTO ticketDTO, Long idApuesta, Long idOpcion) {
 
         Apuesta apuesta = apuestaRepository.findById(idApuesta)
-                .orElseThrow(() -> new IllegalArgumentException("Apuesta no encontrada"));
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Apuesta no encontrada",
+                        Map.of("id", idApuesta)));
 
         if (apuesta.getEstado() != EstadoApuesta.ABIERTA) {
-            throw new IllegalArgumentException("La apuesta no está abierta");
+            throw new ApiException(
+                    ErrorCode.BET_ALREADY_PLACED,
+                    "La apuesta no está abierta",
+                    Map.of("id", idApuesta)
+            );
         }
 
         Opcion opcion = opcionRepository.findById(idOpcion)

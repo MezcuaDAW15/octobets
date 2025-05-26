@@ -1,6 +1,7 @@
 package com.pfc.octobets.service;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,19 +10,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.AuthRequestDTO;
 import com.pfc.octobets.model.dto.AuthResponseDTO;
 import com.pfc.octobets.model.dto.RegisterRequestDTO;
 import com.pfc.octobets.model.dto.UsuarioDTO;
 import com.pfc.octobets.model.mapper.UsuarioMapper;
-import com.pfc.octobets.repository.dao.CarteraRepository;
 import com.pfc.octobets.repository.dao.UsuarioRepository;
 import com.pfc.octobets.repository.entity.Cartera;
 import com.pfc.octobets.repository.entity.Usuario;
 import com.pfc.octobets.security.JwtProvider;
 import com.pfc.octobets.security.UsuarioDetails;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,13 +48,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO req) {
-        // 1) crear usuario + cartera
-        if (!usuarioRepository.findByEmail(req.getEmail()).isEmpty()) {
-            throw new IllegalArgumentException("El email ya está registrado");
 
+        if (!usuarioRepository.findByEmail(req.getEmail()).isEmpty()) {
+            throw new ApiException(
+                    ErrorCode.USER_ALREADY_EXISTS,
+                    "El email ya está registrado",
+                    Map.of("email", req.getEmail()));
         }
         if (!usuarioRepository.findByUsername(req.getUsername()).isEmpty()) {
-            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
+            throw new ApiException(
+                    ErrorCode.USER_ALREADY_EXISTS,
+                    "El nombre de usuario ya está en uso",
+                    Map.of("username", req.getUsername()));
         }
         log.info("Registrando usuario: {}", req);
         Usuario u = new Usuario();
@@ -71,7 +77,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("Cartera creada: {}", cartera);
         u = usuarioRepository.save(u);
 
-        // 2) Autenticar automáticamente
         AuthRequestDTO loginReq = new AuthRequestDTO(req.getEmail(), req.getPassword());
         return login(loginReq);
     }
@@ -105,16 +110,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UsuarioDTO currentUser(String bearerToken) {
 
-        // 1) quitar prefijo "Bearer "
         String token = bearerToken.replaceFirst("^Bearer\\s+", "");
 
-        // 2) validar y extraer email (sub)
-        if (!jwtProvider.validate(token))
-            throw new JwtException("Token no válido");
+        if (!jwtProvider.validate(token)) {
+            throw new ApiException(
+                    ErrorCode.INVALID_TOKEN,
+                    "Token no válido",
+                    Map.of("token", token));
+        }
 
         Long idUsuario = jwtProvider.getUserId(token);
 
-        // 3) buscar usuario y mapear a DTO
         Usuario user = usuarioRepository.findById(idUsuario).get();
 
         return usuarioMapper.toDTO(user);

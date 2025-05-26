@@ -1,6 +1,9 @@
 package com.pfc.octobets.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import com.pfc.octobets.common.ApiException;
+import com.pfc.octobets.common.ErrorCode;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.pfc.octobets.model.dto.CarteraDTO;
@@ -24,22 +27,22 @@ public class CarteraServiceImpl implements CarteraService {
         log.info("Búsqueda del saldo de la cartera del usuario con id={}", idUsuario);
         return carteraRepository.findById(idUsuario)
                 .map(cartera -> cartera.getSaldoFichas())
-                .orElseThrow(() -> {
-                    String msg = "Cartera no encontrada para el usuario con id=" + idUsuario;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                    ErrorCode.USER_NOT_FOUND,
+                    "Cartera no encontrada para el usuario",
+                    Map.of("id", idUsuario)
+                ));
     }
 
     public CarteraDTO findByUsuario(Long idUsuario) {
         log.info("Búsqueda de la cartera del usuario con id={}", idUsuario);
         return carteraRepository.findById(idUsuario)
                 .map(carteraMapper::toDTO)
-                .orElseThrow(() -> {
-                    String msg = "Cartera no encontrada para el usuario con id=" + idUsuario;
-                    log.warn(msg);
-                    return new ResourceNotFoundException(msg);
-                });
+                .orElseThrow(() -> new ApiException(
+                    ErrorCode.USER_NOT_FOUND,
+                    "Cartera no encontrada para el usuario",
+                    Map.of("id", idUsuario)
+                ));
     }
 
     @Override
@@ -52,9 +55,11 @@ public class CarteraServiceImpl implements CarteraService {
                     carteraRepository.save(cartera);
                     log.info("Nuevo saldo de la cartera con id={} es {}", id, nuevoSaldo);
                 }, () -> {
-                    String msg = "Cartera no encontrada para el usuario con id=" + id;
-                    log.warn(msg);
-                    throw new ResourceNotFoundException(msg);
+                    throw new ApiException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "Cartera no encontrada para el usuario",
+                        Map.of("id", id)
+                    );
                 });
     }
 
