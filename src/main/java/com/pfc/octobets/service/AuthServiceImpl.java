@@ -43,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private UsuarioMapper usuarioMapper;
 
-    private final static String DEFAULT_AVATAR = "avatar-default.png";
+    private final static String DEFAULT_AVATAR = "octo-purple.png";
 
     @Override
     @Transactional
