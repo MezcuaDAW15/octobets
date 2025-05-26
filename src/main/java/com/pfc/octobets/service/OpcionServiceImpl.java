@@ -65,15 +65,32 @@ public class OpcionServiceImpl implements OpcionService {
     public void recalcularCuota(Long idApuesta) {
 
         List<Opcion> opciones = opcionRepository.findAllByIdApuesta(idApuesta);
+        for (Opcion opcion : opciones) {
+
+            log.warn("La opción con id={} tiene un total apostado: {}", opcion.getId(),
+                    opcion.getTotalApostado());
+
+        }
         double totalApostado = opciones.stream()
                 .mapToDouble(Opcion::getTotalApostado)
                 .sum();
         if (totalApostado == 0) {
             log.warn("No se puede recalcular la cuota de la apuesta con id={} porque no hay apuestas", idApuesta);
+            opciones.forEach(opcion -> {
+                opcion.setCuota(2.0);
+                opcionRepository.save(opcion);
+            });
             return;
         }
         for (Opcion opcion : opciones) {
-            double cuota = totalApostado / opcion.getTotalApostado();
+            double cuota;
+            if (opcion.getTotalApostado() == 0) {
+                log.warn("TOTAL APOSTADO ES 0", opcion.getId());
+                cuota = 1.0;
+            } else {
+                cuota = totalApostado / opcion.getTotalApostado();
+
+            }
             opcion.setCuota(cuota);
             ticketRepository.findByOpcionId(opcion.getId()).forEach(ticket -> {
                 ticket.setCuota(cuota);

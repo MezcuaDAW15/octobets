@@ -50,6 +50,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketDTO crearTicket(TicketDTO dto) {
+        log.info("Creación de ticket para el usuario con id={} y cantidad de fichas={}", dto.getUsuario().getId(),
+                dto.getCantidadFichas());
         Long idUsuario = dto.getUsuario().getId();
         double fichas = dto.getCantidadFichas();
 
