@@ -10,11 +10,7 @@ jobs:
 
     steps:
       # 1) Clona el repo
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      # 2) Sube backend y docker-compose.yml al VPS
-      - name: Upload backend
+      - name: SCP JAR y configs al VPS
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -22,8 +18,9 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            backend/**
+            target/*.jar
             docker-compose.yml
+            Dockerfile
           target: /opt/octobets
 
       # 3) Comprueba si existe la carpeta frontend
