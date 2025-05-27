@@ -1,0 +1,71 @@
+name: Deploy Octobets to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Clona el repo
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2) Sube backend y docker-compose.yml al VPS
+      - name: Upload backend
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: |
+            backend/**
+            docker-compose.yml
+          target: /opt/octobets
+
+      # 3) Comprueba si existe la carpeta frontend
+      - name: Check for frontend directory
+        id: frontend-check
+        run: |
+          if [ -d frontend ]; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+
+      # 4) Build y Upload frontend **solo si frontend existe**
+      - name: Build frontend
+        if: ${{ steps.frontend-check.outputs.exists == 'true' }}
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload frontend build
+        if: ${{ steps.frontend-check.outputs.exists == 'true' }}
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: frontend/dist/**
+          target: /opt/octobets/frontend
+
+      # 5) Levanta o actualiza contenedores en el VPS
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/octobets
+            docker compose pull
+            docker compose up -d --build
+            docker image prune -f
+            sudo systemctl reload nginx || true
