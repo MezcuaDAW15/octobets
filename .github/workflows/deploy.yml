@@ -19,17 +19,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      # 3-bis. Localizar el JAR generado y exponerlo
-      - name: Find JAR
-        id: find_jar
-        run: |
-          JAR=$(find . -type f -name '*.jar' -path '*/target/*' | head -n1)
-          if [ -z "$JAR" ]; then
-            echo "No JAR found!"; exit 1
-          fi
-          echo "jar=$JAR" >> $GITHUB_OUTPUT
+      # 3. Compilar sin tests
+      - name: Build with Maven
+        run: mvn -B package -DskipTests
 
-      # 4. Copiar sólo ese JAR + compose
+      # 4. Copiar JAR + docker-compose.yml al VPS
       - name: Upload JAR and Docker Compose
         uses: appleboy/scp-action@master
         with:
@@ -38,7 +32,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            ${{ steps.find_jar.outputs.jar }}
+            **/target/*.jar        # ← nota los dos asteriscos
             docker-compose.yml
           target: /opt/octobets
 
