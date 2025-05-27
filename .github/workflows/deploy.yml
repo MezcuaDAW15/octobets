@@ -1,16 +1,41 @@
-name: Deploy Octobets to VPS
+name: CI/CD Octobets
 
 on:
   push:
     branches: [main]
 
 jobs:
+  build:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    outputs:
+      jar-path: ${{ steps.find-jar.outputs.jar }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build with Maven
+        run: mvn -B package -DskipTests
+
+      - name: Find JAR
+        id: find-jar
+        run: |
+          echo "jar=$(ls target/*.jar | head -n1)" >> $GITHUB_OUTPUT
+
   deploy:
+    name: Deploy to VPS
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Clona el repo
-      - name: SCP JAR y configs al VPS
+      - name: Upload JAR and config via SCP
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -18,42 +43,11 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            target/*.jar
+            ${{ needs.build.outputs.jar-path }}
             docker-compose.yml
-            Dockerfile
           target: /opt/octobets
 
-      # 3) Comprueba si existe la carpeta frontend
-      - name: Check for frontend directory
-        id: frontend-check
-        run: |
-          if [ -d frontend ]; then
-            echo "::set-output name=exists::true"
-          else
-            echo "::set-output name=exists::false"
-          fi
-
-      # 4) Build y Upload frontend **solo si frontend existe**
-      - name: Build frontend
-        if: ${{ steps.frontend-check.outputs.exists == 'true' }}
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-
-      - name: Upload frontend build
-        if: ${{ steps.frontend-check.outputs.exists == 'true' }}
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: frontend/dist/**
-          target: /opt/octobets/frontend
-
-      # 5) Levanta o actualiza contenedores en el VPS
-      - name: Deploy with Docker Compose
+      - name: Remote deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -62,7 +56,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/octobets
-            docker compose pull
+            # Asegúrate de que exista la carpeta backend
+            mkdir -p backend
+            # Mueve y renombra el JAR al lugar esperado
+            mv *.jar backend/app.jar
+            # Lanza o reconstruye los contenedores
             docker compose up -d --build
+            # Limpia imágenes huérfanas
             docker image prune -f
+            # Recarga Nginx si lo usas como proxy
             sudo systemctl reload nginx || true
