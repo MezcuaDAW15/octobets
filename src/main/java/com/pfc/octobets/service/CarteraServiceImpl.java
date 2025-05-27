@@ -14,6 +14,7 @@ import com.pfc.octobets.repository.dao.CarteraRepository;
 import com.pfc.octobets.repository.dao.TransaccionRepository;
 import com.pfc.octobets.repository.entity.Cartera;
 import com.pfc.octobets.repository.entity.Transaccion;
+import com.pfc.octobets.repository.entity.Transaccion.Estado;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 
@@ -74,34 +75,48 @@ public class CarteraServiceImpl implements CarteraService {
     }
 
     @Override
-    public PaymentIntent createBuyIntent(Long idUsuario, double chips) {
-        log.info("Creando PaymentIntent para usuario id={} con chips={}", idUsuario, chips);
-        Cartera cartera = carteraRepository.findById(idUsuario)
+    public PaymentIntent createBuyIntent(Long userId, double chips) {
+        log.info("Creando PaymentIntent para usuario id={} con chips={}", userId, chips);
+        Cartera cartera = carteraRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.WALLET_NOT_FOUND, "Cartera no existe"));
 
-        long amountCents = Math.round((chips / EUR_TO_CHIPS) * 100);
+        long amountCents = Math.round((chips / EUR_TO_CHIPS) * 100); // 100 fichas = 1 €
 
         Map<String, Object> params = Map.of(
                 "amount", amountCents,
                 "currency", "eur",
-                "metadata", Map.of("idUsuario", idUsuario, "chips", chips));
+                "automatic_payment_methods", Map.of("enabled", true), // 👈 NUEVO
+                "metadata", Map.of(
+                        "userId", userId, // 👈 usa SIEMPRE las mismas keys
+                        "chips", chips));
 
         try {
             PaymentIntent intent = PaymentIntent.create(params);
-            // guardamos transacción en estado 'pendiente'
-            Transaccion tx = new Transaccion(null, amountCents / 100.0, chips,
-                    LocalDateTime.now(), Transaccion.Tipo.DEPOSITO,
-                    intent.getId(), cartera);
+
+            Transaccion tx = new Transaccion();
+            tx.setCantidadDinero(amountCents / 100.0);
+            tx.setCantidadFichas(chips);
+            tx.setFecha(LocalDateTime.now());
+            tx.setTipo(Transaccion.Tipo.DEPOSITO);
+            tx.setStripeId(intent.getId());
+            tx.setEstado(Estado.PENDING);
+            tx.setCartera(cartera);
             transaccionRepository.save(tx);
+
             return intent;
+
         } catch (StripeException e) {
-            throw new ApiException(ErrorCode.STRIPE_PAYMENT_FAILED, "Stripe no aceptó el pago");
+            log.error("Stripe dijo NO: {}", e.getMessage(), e);
+            throw new ApiException(ErrorCode.STRIPE_PAYMENT_FAILED,
+                    "Stripe no aceptó el pago");
         }
     }
 
     @Override
     public void confirmBuy(String paymentIntentId) throws StripeException {
+        log.info("Confirmando compra con PaymentIntent id={}", paymentIntentId);
         PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
+
         long userId = Long.parseLong(intent.getMetadata().get("userId"));
         double chips = Double.parseDouble(intent.getMetadata().get("chips"));
 
@@ -110,6 +125,13 @@ public class CarteraServiceImpl implements CarteraService {
 
         cartera.setSaldoFichas(cartera.getSaldoFichas() + chips);
         carteraRepository.save(cartera);
+
+        // marca la transacción como SUCCEEDED (si añadiste el campo estado)
+        transaccionRepository.findByStripeId(paymentIntentId)
+                .ifPresent(tx -> {
+                    tx.setEstado(Estado.SUCCEEDED);
+                    transaccionRepository.save(tx);
+                });
     }
 
     @Override
@@ -125,13 +147,13 @@ public class CarteraServiceImpl implements CarteraService {
         cartera.setSaldoFichas(cartera.getSaldoFichas() - chips);
         carteraRepository.save(cartera);
 
-        Transaccion tx = new Transaccion(null,
-                -chips / EUR_TO_CHIPS, // dinero ficticio negativo
-                -chips,
-                LocalDateTime.now(),
-                Transaccion.Tipo.RETIRO,
-                null, // sin Stripe real
-                cartera);
+        Transaccion tx = new Transaccion();
+        tx.setCantidadDinero(-chips / EUR_TO_CHIPS);
+        tx.setCantidadFichas(-chips);
+        tx.setFecha(LocalDateTime.now());
+        tx.setTipo(Transaccion.Tipo.RETIRO);
+        tx.setCartera(cartera);
+
         transaccionRepository.save(tx);
     }
 

@@ -68,7 +68,7 @@ public class CarteraRestController {
     @PostMapping("/stripe/webhook")
     public ResponseEntity<Void> handleWebhook(HttpServletRequest request, @RequestBody String payload)
             throws SignatureVerificationException, IOException, StripeException {
-
+        log.info("Webhook de Stripe recibido");
         String sigHeader = request.getHeader("Stripe-Signature");
         Event event = Webhook.constructEvent(
                 payload, sigHeader, stripeConfig.getWebhookSecret());

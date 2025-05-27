@@ -27,6 +27,10 @@ public class Transaccion {
         DEPOSITO, RETIRO
     }
 
+    public enum Estado {
+        PENDING, SUCCEEDED, FAILED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,6 +50,10 @@ public class Transaccion {
 
     @Column(name = "stripe_id")
     private String stripeId;
+
+    @Column(name = "estado", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Estado estado;
 
     @ManyToOne
     @JoinColumn(name = "id_cartera", nullable = false)

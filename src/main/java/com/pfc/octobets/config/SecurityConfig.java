@@ -68,7 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/auth/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/ws/apuestas").permitAll()
                         .requestMatchers(HttpMethod.GET, "/ws/apuestas/**").permitAll()
-                        .requestMatchers("/ws/carteras/stripe/webhook").permitAll()
+                        .requestMatchers("/ws/carteras/stripe/**").permitAll()
                         .anyRequest().authenticated() // ← resto protegido
                 )
                 .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class);
