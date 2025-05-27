@@ -15,8 +15,10 @@ import lombok.NoArgsConstructor;
 public class TransaccionDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
-    private Double cantidadDinero;
-    private Double cantidadFichas;
     private LocalDateTime fecha;
-    private CarteraDTO carteraDTO;
+    private String tipo;
+    private Double cantidadFichas;
+    private Double cantidadDinero;
+    private String stripeId;
+    private String estado;
 }

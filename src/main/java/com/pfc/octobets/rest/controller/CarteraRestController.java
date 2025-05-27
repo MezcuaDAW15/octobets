@@ -1,7 +1,7 @@
 package com.pfc.octobets.rest.controller;
 
 import java.io.IOException;
-import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pfc.octobets.config.StripeConfig;
 import com.pfc.octobets.model.dto.CarteraDTO;
+import com.pfc.octobets.model.dto.TransaccionDTO;
 import com.pfc.octobets.security.UsuarioDetails;
 import com.pfc.octobets.service.CarteraService;
 import com.stripe.exception.SignatureVerificationException;
@@ -82,8 +83,8 @@ public class CarteraRestController {
     }
 
     @PostMapping("/withdraw")
-    public void withdraw(@RequestParam double chips, Principal me) {
-        carteraService.withdrawChips(Long.valueOf(me.getName()), chips);
+    public void withdraw(@RequestParam double chips, @AuthenticationPrincipal UsuarioDetails user) {
+        carteraService.withdrawChips(Long.valueOf(user.getId()), chips);
     }
 
     @GetMapping("/balance")
@@ -95,5 +96,12 @@ public class CarteraRestController {
 
         // 2) Usa el servicio
         return carteraService.getBalance(idUsuario);
+    }
+
+    @GetMapping("/transacciones")
+    public List<TransaccionDTO> transactions(
+            @AuthenticationPrincipal UsuarioDetails userDetails) {
+        Long userId = userDetails.getId();
+        return carteraService.listTransactions(userId);
     }
 }

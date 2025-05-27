@@ -9,9 +9,11 @@ import com.pfc.octobets.repository.entity.Transaccion;
 
 @Mapper(componentModel = "spring", uses = { CarteraMapper.class })
 public interface TransaccionMapper {
-    @Mapping(source = "cartera", target = "carteraDTO")
+
     TransaccionDTO toDTO(Transaccion entity);
 
     @InheritInverseConfiguration
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cartera", ignore = true)
     Transaccion toEntity(TransaccionDTO dto);
 }

@@ -1,6 +1,7 @@
 package com.pfc.octobets.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.pfc.octobets.common.ApiException;
 import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.CarteraDTO;
+import com.pfc.octobets.model.dto.TransaccionDTO;
 import com.pfc.octobets.model.mapper.CarteraMapper;
+import com.pfc.octobets.model.mapper.TransaccionMapper;
 import com.pfc.octobets.repository.dao.CarteraRepository;
 import com.pfc.octobets.repository.dao.TransaccionRepository;
 import com.pfc.octobets.repository.entity.Cartera;
@@ -32,6 +35,9 @@ public class CarteraServiceImpl implements CarteraService {
 
     @Autowired
     private CarteraMapper carteraMapper;
+
+    @Autowired
+    private TransaccionMapper transaccionMapper;
 
     @Autowired
     private TransaccionRepository transaccionRepository;
@@ -152,6 +158,8 @@ public class CarteraServiceImpl implements CarteraService {
         tx.setCantidadFichas(-chips);
         tx.setFecha(LocalDateTime.now());
         tx.setTipo(Transaccion.Tipo.RETIRO);
+        tx.setStripeId(null);
+        tx.setEstado(Transaccion.Estado.SUCCEEDED);
         tx.setCartera(cartera);
 
         transaccionRepository.save(tx);
@@ -165,6 +173,19 @@ public class CarteraServiceImpl implements CarteraService {
                         "Cartera no existe",
                         Map.of("userId", userId)));
         return cartera.getSaldoFichas();
+    }
+
+    @Override
+    public List<TransaccionDTO> listTransactions(Long userId) {
+        Cartera cartera = carteraRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.WALLET_NOT_FOUND,
+                        "Cartera no existe",
+                        Map.of("userId", userId)));
+        return transaccionRepository.findAllByCarteraId(cartera.getIdUsuario())
+                .stream()
+                .map(transaccionMapper::toDTO)
+                .toList();
     }
 
 }
