@@ -53,7 +53,7 @@ jobs:
           script: |
             cd /opt/octobets
             mkdir -p backend
-            cp backend/target/init.sql mysql-init
+            cp backend/init.sql mysql-init
             docker compose up -d --build
             # docker image prune -f
             sudo systemctl reload nginx || true
