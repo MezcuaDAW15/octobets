@@ -15,7 +15,7 @@ jobs:
       - name: List workspace contents
         run: |
           echo "=== Workspace root ==="
-          ls -la /target
+          ls -la target
           echo "=== .github/workflows dir ==="
           ls -la .github/workflows || true
 
