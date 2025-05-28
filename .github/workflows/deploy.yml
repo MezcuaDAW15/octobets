@@ -32,7 +32,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            **/target/*.jar        # ← nota los dos asteriscos
+            **/target/*.jar
             docker-compose.yml
           target: /opt/octobets
 
