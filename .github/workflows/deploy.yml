@@ -12,6 +12,13 @@ jobs:
       # 1. Checkout del código
       - uses: actions/checkout@v4
 
+      - name: List workspace contents
+        run: |
+          echo "=== Workspace root ==="
+          ls -la
+          echo "=== .github/workflows dir ==="
+          ls -la .github/workflows || true
+
       # 2. JDK 21 para Maven
       - name: Set up JDK 21
         uses: actions/setup-java@v3
