@@ -15,7 +15,7 @@ jobs:
       - name: List workspace contents
         run: |
           echo "=== Workspace root ==="
-          ls -la
+          ls -la /target
           echo "=== .github/workflows dir ==="
           ls -la .github/workflows || true
 
@@ -38,9 +38,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            ls -la
-            ls -la target
+
           source: |
             **/target/*.jar
             docker-compose.yml
