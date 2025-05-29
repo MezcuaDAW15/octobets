@@ -39,6 +39,22 @@ public class ApuestaRestController {
         return ResponseEntity.ok(apuestas);
     }
 
+    @GetMapping("/top")
+    public ResponseEntity<List<ApuestaDTO>> getTopApuestas() {
+        log.info("Petición recibida: obtener 10 apuestas con mas fichas.");
+        List<ApuestaDTO> apuestas = apuestaService.findTop(10);
+        log.info("Se retornan {} apuestas.", apuestas.size());
+        return ResponseEntity.ok(apuestas);
+    }
+
+    @GetMapping("/last")
+    public ResponseEntity<List<ApuestaDTO>> getLastApuestas() {
+        log.info("Petición recibida: obtener 10 apuestas mas recientes.");
+        List<ApuestaDTO> apuestas = apuestaService.findLast(10);
+        log.info("Se retornan {} apuestas.", apuestas.size());
+        return ResponseEntity.ok(apuestas);
+    }
+
     @GetMapping("/usuarios/{idUsuario}")
     public ResponseEntity<List<ApuestaDTO>> getApuestasByUsuario(@PathVariable Long idUsuario) {
         log.info("Petición recibida: obtener apuestas por usuario id={}", idUsuario);

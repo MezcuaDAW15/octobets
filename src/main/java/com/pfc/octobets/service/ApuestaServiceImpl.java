@@ -171,8 +171,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_ALREADY_PLACED,
                     "La apuesta no está cerrada",
-                    Map.of("id", id)
-            );
+                    Map.of("id", id));
         }
         Opcion opcionGanadora = opcionRepository.findById(idOpcionGanadora)
                 .orElseThrow(() -> new ApiException(
@@ -185,8 +184,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_NOT_FOUND,
                     "La opción no pertenece a la apuesta",
-                    Map.of("apuestaId", id, "opcionId", idOpcionGanadora)
-            );
+                    Map.of("apuestaId", id, "opcionId", idOpcionGanadora));
         }
 
         opcionGanadora = opcionService.setOpcionGanadora(idOpcionGanadora);
@@ -208,8 +206,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_ALREADY_PLACED,
                     "La apuesta no está abierta",
-                    Map.of("id", idApuesta)
-            );
+                    Map.of("id", idApuesta));
         }
 
         Opcion opcion = opcionRepository.findById(idOpcion)
@@ -233,6 +230,24 @@ public class ApuestaServiceImpl implements ApuestaService {
         log.info("Búsqueda de apuestas por usuario id={}", idUsuario);
         return apuestaRepository.findByUsuario(idUsuario).stream()
                 .map(apuestaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ApuestaDTO> findTop(int cantidad) {
+        log.info("Búsqueda de las {} apuestas con mas total apostado", cantidad);
+        return apuestaRepository.findAllOrderByTotalApostado().stream()
+                .map(apuestaMapper::toDTO)
+                .limit(cantidad)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ApuestaDTO> findLast(int cantidad) {
+        log.info("Búsqueda de las {} apuestas con mas total apostado", cantidad);
+        return apuestaRepository.findAllOrderByFecha().stream()
+                .map(apuestaMapper::toDTO)
+                .limit(cantidad)
                 .collect(Collectors.toList());
     }
 }
