@@ -28,4 +28,8 @@ public interface ApuestaService {
 
     List<ApuestaDTO> findLast(int cantidad);
 
+    ApuestaDTO eliminarApuesta(Long id);
+
+    List<ApuestaDTO> findAllAdmin(Long idUsuario);
+
 }

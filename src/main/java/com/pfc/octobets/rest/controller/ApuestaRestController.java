@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -105,6 +106,15 @@ public class ApuestaRestController {
         return ResponseEntity.ok(cancelada);
     }
 
+    @PostMapping("/{id}/eliminar")
+    public ResponseEntity<ApuestaDTO> eliminarApuesta(@RequestBody String entity) {
+        log.info("Petición recibida: eliminar apuesta con id={}", entity);
+        Long id = Long.parseLong(entity);
+        ApuestaDTO eliminada = apuestaService.eliminarApuesta(id);
+        log.info("Apuesta eliminada: {}", eliminada);
+        return ResponseEntity.ok(eliminada);
+    }
+
     @PutMapping("/{id}/resolver/{idOpcionGanadora}")
     public ResponseEntity<ApuestaDTO> resolverApuesta(@PathVariable Long id,
             @PathVariable Long idOpcionGanadora) {
@@ -135,6 +145,25 @@ public class ApuestaRestController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error inesperado");
         }
+    }
+
+    @GetMapping("/admin/{idUsuario}")
+    public ResponseEntity<List<ApuestaDTO>> getAllApuestasAdmin(@PathVariable Long idUsuario) {
+        log.info("Petición recibida: obtener todas las apuestas.");
+        List<ApuestaDTO> apuestas = apuestaService.findAllAdmin(idUsuario);
+        log.info("Se retornan {} apuestas.", apuestas.size());
+        return ResponseEntity.ok(apuestas);
+    }
+
+    @DeleteMapping("/{idApuesta}/admin/{idUsuario}")
+    public ResponseEntity<ApuestaDTO> eliminarApuesta(
+            @PathVariable Long idUsuario,
+            @PathVariable Long idApuesta) {
+
+        log.info("Petición recibida: eliminar apuesta con id={} por el usuario id={}", idApuesta, idUsuario);
+        ApuestaDTO eliminada = apuestaService.eliminarApuesta(idApuesta);
+        log.info("Apuesta eliminada: {}", eliminada);
+        return ResponseEntity.ok(eliminada);
     }
 
 }

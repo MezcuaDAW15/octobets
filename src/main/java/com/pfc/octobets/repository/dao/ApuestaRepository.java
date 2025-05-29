@@ -12,6 +12,9 @@ import com.pfc.octobets.repository.entity.Apuesta;
 
 @Repository
 public interface ApuestaRepository extends JpaRepository<Apuesta, Long> {
+    @EntityGraph(attributePaths = "opciones")
+    @Query("SELECT a FROM Apuesta a ")
+    List<Apuesta> findAll();
 
     @EntityGraph(attributePaths = "opciones")
     @Query("SELECT a FROM Apuesta a WHERE a.estado = 'ABIERTA'")
