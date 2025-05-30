@@ -132,10 +132,19 @@ public class CarteraServiceImpl implements CarteraService {
         cartera.setSaldoFichas(cartera.getSaldoFichas() + chips);
         carteraRepository.save(cartera);
 
-        // marca la transacción como SUCCEEDED (si añadiste el campo estado)
         transaccionRepository.findByStripeId(paymentIntentId)
                 .ifPresent(tx -> {
                     tx.setEstado(Estado.SUCCEEDED);
+                    transaccionRepository.save(tx);
+                });
+    }
+
+    @Override
+    public void cancelBuy(String paymentIntentId) throws StripeException {
+        log.info("Cancelando compra con PaymentIntent id={}", paymentIntentId);
+        transaccionRepository.findByStripeId(paymentIntentId)
+                .ifPresent(tx -> {
+                    tx.setEstado(Estado.FAILED);
                     transaccionRepository.save(tx);
                 });
     }

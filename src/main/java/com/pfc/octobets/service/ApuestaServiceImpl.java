@@ -292,18 +292,27 @@ public class ApuestaServiceImpl implements ApuestaService {
     @Override
     public List<ApuestaDTO> findAllAdmin(Long idUsuario) {
         log.info("Búsqueda de todas las apuestas para el administrador con id={}", idUsuario);
-        usuarioRepository.isAdmin(idUsuario)
+        Byte adminFlag = usuarioRepository.isAdmin(idUsuario)
                 .orElseThrow(() -> new ApiException(
-                        ErrorCode.USER_NOT_FOUND,
-                        "Usuario no encontrado o no es administrador",
-                        Map.of("id", idUsuario)));
-        log.info("Usuario con id={} es administrador, obteniendo todas las apuestas.");
-        List<Apuesta> apuestas = apuestaRepository.findAll();
-        log.info("Se encontraron {} apuestas para el administrador con id={}", apuestas.size(), idUsuario);
-        List<ApuestaDTO> apuestasDTO = apuestas.stream()
-                .map(apuestaMapper::toDTO)
-                .collect(Collectors.toList());
-        log.info("Se retornan {} apuestas para el administrador con id={}", apuestasDTO.size(), idUsuario);
-        return apuestasDTO;
+                        ErrorCode.USER_NOT_FOUND, "Usuario no encontrado", Map.of("id", idUsuario)));
+
+        boolean isAdmin = adminFlag != 0;
+        if (!isAdmin) {
+            log.error("El usuario con id={} no es administrador, no se pueden obtener todas las apuestas.", idUsuario);
+            throw new ApiException(
+                    ErrorCode.USER_NOT_FOUND,
+                    "El usuario no es administrador",
+                    Map.of("id", idUsuario));
+        } else {
+
+            log.info("Usuario con id={} es administrador, obteniendo todas las apuestas.");
+            List<Apuesta> apuestas = apuestaRepository.findAll();
+            log.info("Se encontraron {} apuestas para el administrador con id={}", apuestas.size(), idUsuario);
+            List<ApuestaDTO> apuestasDTO = apuestas.stream()
+                    .map(apuestaMapper::toDTO)
+                    .collect(Collectors.toList());
+            log.info("Se retornan {} apuestas para el administrador con id={}", apuestasDTO.size(), idUsuario);
+            return apuestasDTO;
+        }
     }
 }

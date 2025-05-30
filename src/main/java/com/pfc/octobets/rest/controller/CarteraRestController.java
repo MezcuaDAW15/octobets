@@ -77,7 +77,13 @@ public class CarteraRestController {
         if ("payment_intent.succeeded".equals(event.getType())) {
             log.info("Evento de Stripe recibido: {}", event.getType());
             PaymentIntent pi = (PaymentIntent) event.getData().getObject();
-            carteraService.confirmBuy(pi.getId()); // ✅ acredita fichas
+            carteraService.confirmBuy(pi.getId());
+        } else if ("payment_intent.payment_failed".equals(event.getType())) {
+            log.warn("Pago fallido: {}", event.getData().getObject());
+            PaymentIntent pi = (PaymentIntent) event.getData().getObject();
+            carteraService.cancelBuy(pi.getId());
+        } else {
+            log.warn("Evento no manejado: {}", event.getType());
         }
         return ResponseEntity.ok().build();
     }

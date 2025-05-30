@@ -19,6 +19,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
 
     @Query(value = "SELECT u.admin FROM usuario u WHERE u.id = :idUsuario", nativeQuery = true)
-    Optional<Boolean> isAdmin(Long idUsuario);
+    Optional<Byte> isAdmin(Long idUsuario);
 
 }
