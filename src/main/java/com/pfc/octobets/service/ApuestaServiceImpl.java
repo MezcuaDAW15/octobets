@@ -60,6 +60,7 @@ public class ApuestaServiceImpl implements ApuestaService {
     public ApuestaDTO findById(Long id) {
         log.info("Búsqueda de apuesta con id={}", id);
         return apuestaRepository.findById(id)
+                .filter(apuesta -> apuesta.getEstado() != EstadoApuesta.ELIMINADA)
                 .map(apuestaMapper::toDTO)
                 .orElseThrow(() -> new ApiException(
                         ErrorCode.BET_NOT_FOUND,
@@ -171,8 +172,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_ALREADY_PLACED,
                     "La apuesta no está cerrada",
-                    Map.of("id", id)
-            );
+                    Map.of("id", id));
         }
         Opcion opcionGanadora = opcionRepository.findById(idOpcionGanadora)
                 .orElseThrow(() -> new ApiException(
@@ -185,8 +185,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_NOT_FOUND,
                     "La opción no pertenece a la apuesta",
-                    Map.of("apuestaId", id, "opcionId", idOpcionGanadora)
-            );
+                    Map.of("apuestaId", id, "opcionId", idOpcionGanadora));
         }
 
         opcionGanadora = opcionService.setOpcionGanadora(idOpcionGanadora);
@@ -208,8 +207,7 @@ public class ApuestaServiceImpl implements ApuestaService {
             throw new ApiException(
                     ErrorCode.BET_ALREADY_PLACED,
                     "La apuesta no está abierta",
-                    Map.of("id", idApuesta)
-            );
+                    Map.of("id", idApuesta));
         }
 
         Opcion opcion = opcionRepository.findById(idOpcion)
@@ -234,5 +232,87 @@ public class ApuestaServiceImpl implements ApuestaService {
         return apuestaRepository.findByUsuario(idUsuario).stream()
                 .map(apuestaMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ApuestaDTO> findTop(int cantidad) {
+        log.info("Búsqueda de las {} apuestas con mas total apostado", cantidad);
+        return apuestaRepository.findAllOrderByTotalApostado().stream()
+                .map(apuestaMapper::toDTO)
+                .limit(cantidad)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ApuestaDTO> findLast(int cantidad) {
+        log.info("Búsqueda de las {} apuestas con mas total apostado", cantidad);
+        return apuestaRepository.findAllOrderByFecha().stream()
+                .map(apuestaMapper::toDTO)
+                .limit(cantidad)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ApuestaDTO eliminarApuesta(Long id) {
+        log.info("Eliminando apuesta con id={}", id);
+        Apuesta apuesta = apuestaRepository.findById(id)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.BET_NOT_FOUND,
+                        "Apuesta no encontrada",
+                        Map.of("id", id)));
+
+        switch (apuesta.getEstado()) {
+            case ABIERTA:
+                apuesta.setEstado(EstadoApuesta.ELIMINADA);
+                apuesta.setDescripcion(apuesta.getDescripcion() + " | Apuesta eliminada por el administrador");
+                apuesta.setFechaCierre(java.time.LocalDateTime.now());
+                ticketService.devolverTickets(id);
+                break;
+            case CERRADA:
+                apuesta.setEstado(EstadoApuesta.ELIMINADA);
+                apuesta.setDescripcion(apuesta.getDescripcion() + " | Apuesta eliminada por el administrador");
+                ticketService.devolverTickets(id);
+
+                break;
+            case CANCELADA:
+                apuesta.setEstado(EstadoApuesta.ELIMINADA);
+                apuesta.setDescripcion(apuesta.getDescripcion() + " | Apuesta eliminada por el administrador");
+                apuesta.setFechaCierre(java.time.LocalDateTime.now());
+                break;
+            case RESUELTA:
+                apuesta.setEstado(EstadoApuesta.ELIMINADA);
+                apuesta.setDescripcion(apuesta.getDescripcion() + " | Apuesta eliminada por el administrador");
+            default:
+                break;
+        }
+        apuesta = apuestaRepository.save(apuesta);
+        return apuestaMapper.toDTO(apuesta);
+    }
+
+    @Override
+    public List<ApuestaDTO> findAllAdmin(Long idUsuario) {
+        log.info("Búsqueda de todas las apuestas para el administrador con id={}", idUsuario);
+        Byte adminFlag = usuarioRepository.isAdmin(idUsuario)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.USER_NOT_FOUND, "Usuario no encontrado", Map.of("id", idUsuario)));
+
+        boolean isAdmin = adminFlag != 0;
+        if (!isAdmin) {
+            log.error("El usuario con id={} no es administrador, no se pueden obtener todas las apuestas.", idUsuario);
+            throw new ApiException(
+                    ErrorCode.USER_NOT_FOUND,
+                    "El usuario no es administrador",
+                    Map.of("id", idUsuario));
+        } else {
+
+            log.info("Usuario con id={} es administrador, obteniendo todas las apuestas.");
+            List<Apuesta> apuestas = apuestaRepository.findAll();
+            log.info("Se encontraron {} apuestas para el administrador con id={}", apuestas.size(), idUsuario);
+            List<ApuestaDTO> apuestasDTO = apuestas.stream()
+                    .map(apuestaMapper::toDTO)
+                    .collect(Collectors.toList());
+            log.info("Se retornan {} apuestas para el administrador con id={}", apuestasDTO.size(), idUsuario);
+            return apuestasDTO;
+        }
     }
 }

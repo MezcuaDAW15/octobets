@@ -25,4 +25,6 @@ public interface CarteraService {
 
     List<TransaccionDTO> listTransactions(Long userId);
 
+    void cancelBuy(String id) throws StripeException;
+
 }

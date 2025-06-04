@@ -24,4 +24,12 @@ public interface ApuestaService {
 
     List<ApuestaDTO> findByUsuario(Long idUsuario);
 
+    List<ApuestaDTO> findTop(int cantidad);
+
+    List<ApuestaDTO> findLast(int cantidad);
+
+    ApuestaDTO eliminarApuesta(Long id);
+
+    List<ApuestaDTO> findAllAdmin(Long idUsuario);
+
 }

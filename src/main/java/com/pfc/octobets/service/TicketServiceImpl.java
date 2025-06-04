@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.pfc.octobets.common.ApiException;
 import com.pfc.octobets.common.ErrorCode;
 import com.pfc.octobets.model.dto.TicketDTO;
+import com.pfc.octobets.model.enums.EstadoApuesta;
 import com.pfc.octobets.model.mapper.TicketMapper;
 import com.pfc.octobets.repository.dao.CarteraRepository;
 import com.pfc.octobets.repository.dao.OpcionRepository;
@@ -17,6 +18,7 @@ import com.pfc.octobets.repository.dao.TicketRepository;
 import com.pfc.octobets.repository.entity.Cartera;
 import com.pfc.octobets.repository.entity.Opcion;
 import com.pfc.octobets.repository.entity.Ticket;
+import com.stripe.model.tax.Registration.CountryOptions.Es;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,6 +87,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketDTO> getTicketsByIdUsuario(Long idUsuario) {
         log.info("Búsqueda de tickets para el usuario con id={}", idUsuario);
         return ticketRepository.findByUsuarioId(idUsuario).stream()
+                .filter(ticket -> !ticket.getOpcion().getApuesta().getEstado().equals(EstadoApuesta.ELIMINADA))
                 .map(ticketMapper::toDTO)
                 .toList();
     }
