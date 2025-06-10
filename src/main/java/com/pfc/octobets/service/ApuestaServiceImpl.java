@@ -191,6 +191,14 @@ public class ApuestaServiceImpl implements ApuestaService {
         opcionGanadora = opcionService.setOpcionGanadora(idOpcionGanadora);
         ticketService.pagarGanador(opcionGanadora.getId());
         apuesta.setEstado(EstadoApuesta.RESUELTA);
+        apuesta.getOpciones().forEach(opcion -> {
+            if (opcion.getId().equals(idOpcionGanadora)) {
+                opcion.setGanadora(true);
+            } else {
+                opcion.setGanadora(false);
+            }
+        });
+
         return apuestaMapper.toDTO(apuestaRepository.save(apuesta));
 
     }
