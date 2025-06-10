@@ -12,6 +12,8 @@ import com.pfc.octobets.repository.dao.OpcionRepository;
 import com.pfc.octobets.repository.dao.TicketRepository;
 import com.pfc.octobets.repository.entity.Opcion;
 
+import jakarta.transaction.Transactional;
+
 import com.pfc.octobets.common.ApiException;
 import com.pfc.octobets.common.ErrorCode;
 import java.util.Map;
@@ -104,6 +106,7 @@ public class OpcionServiceImpl implements OpcionService {
     }
 
     @Override
+    @Transactional
     public Opcion setOpcionGanadora(Long idOpcionGanadora) {
         log.info("Marcando opción ganadora con id={}", idOpcionGanadora);
         Opcion opcion = opcionRepository.findById(idOpcionGanadora)
