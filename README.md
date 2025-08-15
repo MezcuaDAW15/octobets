@@ -11,7 +11,7 @@
 
 La memoria completa del Proyecto Final de Ciclo está aquí:
 
-- `docs/Memoria-Octobets-DavidMezcuaDiago.pdf`
+- `docs/Memoria.pdf`
 
 En la memoria encontrarás requisitos, diseño (ERD, clases, despliegue), decisiones de arquitectura, planificación real, pruebas y futuras ampliaciones como cierre automático, notificaciones en tiempo real o nuevas pasarelas de pago.
 
