@@ -19,12 +19,12 @@ En la memoria encontrarás requisitos, diseño (ERD, clases, despliegue), decisi
 
 ## ✨ Características principales
 
-- **Apuestas personalizadas**: creación, publicación y resolución manual por el creador. :contentReference[oaicite:2]{index=2}
-- **Sistema de fichas** con **Stripe** para comprar fichas y registro de transacciones. :contentReference[oaicite:3]{index=3}
-- **Autenticación segura** con **JWT + Spring Security**. :contentReference[oaicite:4]{index=4}
-- **Historial económico** del usuario (ingresos, apuestas, beneficios/pérdidas). :contentReference[oaicite:5]{index=5}
-- **Arquitectura por capas** y paquetes: `model.dto`, `repository.dao`, `repository.entity`, `service`, `rest.controller`. :contentReference[oaicite:6]{index=6}
-- **Despliegue** con **Docker** y **CI/CD en GitHub Actions**. :contentReference[oaicite:7]{index=7}
+- **Apuestas personalizadas**: creación, publicación y resolución manual por el creador.
+- **Sistema de fichas** con **Stripe** para comprar fichas y registro de transacciones.
+- **Autenticación segura** con **JWT + Spring Security**
+- **Historial económico** del usuario (ingresos, apuestas, beneficios/pérdidas).
+- **Arquitectura por capas** y paquetes: `model.dto`, `repository.dao`, `repository.entity`, `service`, `rest.controller`.
+- **Despliegue** con **Docker** y **CI/CD en GitHub Actions**.
 
 ---
 
