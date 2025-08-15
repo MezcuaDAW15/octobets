@@ -1,6 +1,6 @@
 # Octobets (Backend · Spring Boot)
 
-**Octobets** es una plataforma web para organizar **apuestas informales** entre amigos o comunidades, con **autenticación JWT**, **gestión de fichas** y **pagos simulados vía Stripe**. Permite crear apuestas personalizadas, participar con fichas virtuales y registrar el historial económico del usuario. El foco es abrir la puerta a apostar en contextos cotidianos (amistosos, locales), no competir con casas de apuestas tradicionales. :contentReference[oaicite:0]{index=0}
+**Octobets** es una plataforma web para organizar **apuestas informales** entre amigos o comunidades, con **autenticación JWT**, **gestión de fichas** y **pagos simulados vía Stripe**. Permite crear apuestas personalizadas, participar con fichas virtuales y registrar el historial económico del usuario. El foco es abrir la puerta a apostar en contextos cotidianos (amistosos, locales), no competir con casas de apuestas tradicionales.
 
 > Este repositorio contiene el **backend (Spring Boot, JDK 21)**.  
 > El **frontend (Angular 19 + Tailwind)** está en: **https://github.com/MezcuaDAW15/octobets-front**.
@@ -13,7 +13,7 @@ La memoria completa del Proyecto Final de Ciclo está aquí:
 
 - `docs/Memoria-Octobets-DavidMezcuaDiago.pdf`
 
-En la memoria encontrarás requisitos, diseño (ERD, clases, despliegue), decisiones de arquitectura, planificación real, pruebas y futuras ampliaciones como cierre automático, notificaciones en tiempo real o nuevas pasarelas de pago. :contentReference[oaicite:1]{index=1}
+En la memoria encontrarás requisitos, diseño (ERD, clases, despliegue), decisiones de arquitectura, planificación real, pruebas y futuras ampliaciones como cierre automático, notificaciones en tiempo real o nuevas pasarelas de pago.
 
 ---
 
